@@ -1,0 +1,4 @@
+# SubstitutionTilings.jl Documentation
+
+```@contents
+```
