@@ -37,7 +37,7 @@ pentagon = [
     for k=0:2:10 for s=0:1
 ];
 p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=100, h=100));
-@time empirical_frequency(pentagon, p)
+@time empirical_frequency(pentagon, tiling)
 
 
 @testset "Frequencies" begin

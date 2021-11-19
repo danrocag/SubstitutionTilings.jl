@@ -1,4 +1,4 @@
-module Heisenberg
+module HeisenbergImproper
 __precompile__(false)
 
 export He, heis, hn, left, right
