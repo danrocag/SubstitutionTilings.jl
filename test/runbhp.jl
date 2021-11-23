@@ -3,7 +3,7 @@ using SubstitutionTilings.Nilpotent
 
 using Test
 
-@time substitute(bhp_subst(), [a()], 3)
+t = substitute(bhp_subst(), [a()], 1)
 bhp = @time substitute(bhp_subst(), [a()], 4)
 
 isolated_a = [

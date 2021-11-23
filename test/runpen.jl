@@ -1,7 +1,6 @@
 using SubstitutionTilings
 using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ
-#using SubstitutionTilings.Chair
 using Test
 
 using Luxor
@@ -21,7 +20,6 @@ sc = 80
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
     tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    #tiling  = pentagon
     println(typeof(tiling))
     setline(1)
 
