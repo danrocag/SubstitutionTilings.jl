@@ -226,4 +226,6 @@ function bhp_subst()
     return SubSystem(heisenberg_subst, 3//1) 
 end
 
+plausible_collars = [(He(x,y,z), l) for x=[-2,0,2] for y=[-2,0,2] for y=[-2,0,2] for l=[A,B]]
+
 end
