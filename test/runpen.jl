@@ -36,9 +36,11 @@ pentagon = [
     (PenroseElem(k+s,s,L(1))*PenroseElem(0,0,L(-1)),Penrose.Hkite)
     for k=0:2:10 for s=0:1
 ];
-p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=100, h=100));
-@time empirical_frequency(pentagon, tiling)
-
+p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=500, h=500));
+for i in 1:10
+    p = substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=i*50, h=i*50));
+    @time empirical_frequency(pentagon, p)
+end
 
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ
