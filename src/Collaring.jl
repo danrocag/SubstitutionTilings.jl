@@ -4,59 +4,42 @@ using ...CoreDefs
 using StructEquality
 using Graphs
 
-@def_structequal struct Collar{G, L}
-    label :: L
-    patch :: Tiling{G, L} # assumed to be a canonical patch with center label "label"
+export collar_in
+
+function collar_in end
+
+function collar_class(tiling, g)
+    return inv(g)*collar_in(tiling, g)
 end
 
-function recognize(tiling, collars)
-    tiling_dict = Dict(tiling)
-    result = []
-    for tile in tiling
-        for collar in collars
-            if all(t -> (t[1] => t[2]) in tiling, t[1]*collar.patch)
-                push!(result, collar)
-                break
+function center_label(patch)
+    return Dict(patch)[id(patch[1][1])]
+end
+function center_tile(patch)
+    e = id(patch[1][1])
+    return (e, Dict(patch)[e])
+end
+
+function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
+    collars = [initial_collar]
+    visited = 0
+    sub = Dict{Int,Vector{Tuple{G, Int}}}([])
+    while length(collars) > visited
+        new_visited = length(collars)
+        for i in (visited+1):length(collars)
+            sub[i] = []
+            patch = substitute(S, collars[i], 1)
+            for t in substitute(S, [center_tile(collars[i])], 1)
+                class = collar_class(patch, t[1])
+                if class ∉ collars
+                    push!(collars, class)
+                end
+                push!(sub[i], (t[1], findfirst(isequal(class), collars)) )
             end
         end
+        visited = new_visited
     end
-    return result
-end
-
-struct UnrecognizedCollar <: Exception
-end
-function recognize(tiling, collars, tile)
-    tiling_dict = Dict(tiling)
-    for collar in collars
-        if all(t -> (t[1] => t[2]) in tiling_dict, t[1]*collar.patch)
-            return collar
-        end
-    end
-    throw(UnrecognizedCollar)
-end
-
-function collared_subst(S, collars)
-    sub = Dict([])
-    for collar in collars
-        image = substitute(S, collar.patch, 1)
-        for t in S.sub[collar.label]
-            return (t[1], recognize(tiling, collars, t))
-        end
-    end
-    return SubSystem(sub, S.λ)
-end
-
-
-function sub_graph(S, collars)
-    n = length(collars)
-    graph = SimpleDiGraph(n)
-    for i=1:n
-        for t in S.sub[collars[i]]
-            j = first(collars, t[2])
-            add_edge!(graph, i, j)
-        end
-    end
-    return graph
+    return (collars, SubSystem(sub, S.λ))
 end
 
 end

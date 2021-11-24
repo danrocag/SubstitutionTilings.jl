@@ -1,6 +1,7 @@
 module CoreDefs
 
 export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, embed_field_elem, GroupElem, EGroupElem, vertices, in_border
+export transition_matrix
 
 using Nemo
 using Luxor
@@ -58,20 +59,20 @@ function id end
 function Base.:*(g, x :: Tuple)
     return (g*x[1], x[2])
 end
-function Base.:*(g, X :: Vector)
+function Base.:*(g, X :: AbstractVector)
     return map(x -> g*x, X)
 end
-function Base.:*(g, X :: Set)
+function Base.:*(g, X :: AbstractSet)
     return map(x -> g*x, X)
 end
 
 function dilate(λ, x :: Tuple)
     return (dilate(λ,x[1]), x[2])
 end
-function dilate(λ, X :: Vector)
+function dilate(λ, X :: AbstractVector)
     return map(x -> dilate(λ,x), X)
 end
-function dilate(λ, X :: Set)
+function dilate(λ, X :: AbstractSet)
     return map(x -> dilate(λ,x), X)
 end
 
@@ -98,53 +99,6 @@ function in_border(x, t :: Tuple{EGroupElem, T}) where T
     return in_border(inv(t[1])*x, t[2])
 end
 
-function peq(p,q)
-    return all(t -> t in p, q) && all(t -> t in q, p)
-end
-function collar(tile, patch)
-    return collar(tile, 0, patch)
-end
-
-function collar(inner, n, patch)
-    result = inner
-    for t in patch
-        if t not in inner && any(v -> v in vs, vertices(t))
-            push!(result, t)
-        end
-    end
-    return result
-end
-function collars(S, n)
-    return partial_collars(S, 0, n)
-end
-
-function partial_collars(S, k, n)
-    ptiles = keys(S.sub)
-    e = id(first(values(S.sub))[1][1])
-
-    result = []
-    for ptile in ptiles
-        n_ktile = substitute(S, [(e, ptile)], n-k)
-        ntile = substitute(S, [(e, ptile)], n)
-        #println(stile)
-        for ctile in n_ktile
-            itile = substitute(S, [ctile], k)
-            if !any(v -> in_border(v//S.λ^(n-k), ptile), vertices(ctile))
-                collar = itile
-                for tile in ntile
-                    if any(v -> in_border(v//S.λ^k, ctile), vertices(tile)) && !(tile in collar)
-                        push!(collar, tile)
-                    end
-                end
-
-                if !any(t -> peq(t,center_patch(collar)), result)
-                    push!(result, center_patch(collar))
-                end
-            end
-        end
-    end
-    return result
-end
 
 """
     SubSystem
@@ -284,6 +238,11 @@ function check_subset(patch, tiling, incompatible)
     else
         throw(InconclusiveSubsetError)
     end
+end
+
+function transition_matrix(S, order)
+    n = length(order)
+    return [count(t -> t[2]==order[j],S.sub[order[i]]) for i=1:n, j=1:n ]
 end
 
 
