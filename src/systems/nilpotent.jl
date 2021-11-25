@@ -5,10 +5,12 @@ export He, BHPTile, a, b, bhp_subst
 
 using Nemo
 using StructEquality
+using Base.Iterators
 
 QQ = Rational{Int}
 
 using ...CoreDefs
+using ...Collaring
 
 
 @def_structequal struct He <: EGroupElem
@@ -226,6 +228,17 @@ function bhp_subst()
     return SubSystem(heisenberg_subst, 3//1) 
 end
 
-plausible_collars = [(He(x,y,z), l) for x=[-2,0,2] for y=[-2,0,2] for y=[-2,0,2] for l=[A,B]]
+function Collaring.collar_in(tiling, t ::He)
+    collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
+    collar = []
+    tiling_dict = Dict(tiling)
+    for s in collar_shape
+        if !haskey(tiling_dict, s)
+            throw(Collaring.UnrecognizedCollar)
+        end
+        push!(collar, (s,tiling_dict[s]))
+    end
+    return collar
+end
 
 end

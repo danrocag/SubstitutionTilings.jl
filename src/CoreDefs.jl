@@ -187,18 +187,20 @@ that is, computes how many translates of `patch` are subsets of `tiling`
 divided by the total amount of tiles in `tiling`.
 """
 
-function empirical_frequency(patch, tiling)
-    patch = center_patch(patch)
+function empirical_frequency(patch, tiling, center = nothing)
+    if isnothing(center)
+        patch = center_patch(patch)
+        center = 1
+    end
     freq = 0//1
     n = 0
 
-    origin_ptile = patch[1][2]
-    tiling_dict = Dict(tiling)
+    origin_ptile = patch[center][2]
     for tile in tiling
         n += 1
         if origin_ptile == tile[2]
-            translated_patch = map(t -> tile[1]*t, patch)
-            if all(t -> get(tiling_dict, tile[1], nothing) == tile[2], translated_patch)
+            translated_patch = tile[1]*patch
+            if translated_patch ⊆ tiling
                 freq += 1
             end
         end

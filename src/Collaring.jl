@@ -31,10 +31,13 @@ function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
             patch = substitute(S, collars[i], 1)
             for t in substitute(S, [center_tile(collars[i])], 1)
                 class = collar_class(patch, t[1])
-                if class ∉ collars
+                search = findfirst(c -> issetequal(class, c), collars)
+                if !isnothing(search)
+                    push!(sub[i], (t[1], search))
+                else
                     push!(collars, class)
+                    push!(sub[i], (t[1], length(collars)))
                 end
-                push!(sub[i], (t[1], findfirst(isequal(class), collars)) )
             end
         end
         visited = new_visited

@@ -6,48 +6,52 @@ using Test
 using LinearAlgebra
 
 t = substitute(bhp_subst(), [a()], 2)
-bhp = @time substitute(bhp_subst(), [a()], 4)
+bhp = @time substitute(bhp_subst(), [a()], 3)
 
-isolated_a = [
-    a(-2, -2, -2),
-    a(0, -2, -2),
-    a(2, -2, -2),
-    a(-2, -2, 0),
-    a(0, -2, 0),
-    a(2, -2, 0),
-    a(-2, -2, 2),
-    a(0, -2, 2),
-    a(2, -2, 2),
-    
-    a(-2, 0, -2),
-    a(0, 0, -2),
-    a(2, 0, -2),
-    a(-2, 0, 0),
-    b(0, 0, 0),
-    a(2, 0, 0),
-    a(-2, 0, 2),
-    a(0, 0, 2),
-    a(2, 0, 2),
-
-    a(-2, 2, -2),
-    a(0, 2, -2),
-    a(2, 2, -2),
-    a(-2, 2, 0),
-    a(0, 2, 0),
-    a(2, 2, 0),
-    a(-2, 2, 2),
-    a(0, 2, 2),
-    a(2, 2, 2),
+center_a = [
+    a(-2,-2,-2),
+    a(0,-2,-2),
+    a(2,-2,-2),
+    a(-2,0,-2),
+    a(0,0,-2),
+    a(2,0,-2),
+    a(-2,2,-2),
+    a(0,2,-2),
+    a(2,2,-2),
+    b(-2,-2,0),
+    b(0,-2,0),
+    b(2,-2,0),
+    b(-2,0,0),
+    a(0,0,0),
+    b(2,0,0),
+    b(-2,2,0),
+    b(0,2,0),
+    b(2,2,0),
+    a(-2,-2,2),
+    a(0,-2,2),
+    a(2,-2,2),
+    a(-2,0,2),
+    a(0,0,2),
+    a(2,0,2),
+    a(-2,2,2),
+    a(0,2,2),
+    a(2,2,2),
 ]
-@time empirical_frequency(isolated_a, bhp)
+@time empirical_frequency(center_a, bhp, 14)
 
 
-(collars, S) = Collaring.accessible_subst(bhp_subst(), isolated_a)
-size(collars)
-A = transition_matrix(S, 1:264)
+(collars, S) = Collaring.accessible_subst(bhp_subst(), center_a)
+collars[1] == center_a
+length(collars)
+function support(patch)
+    return map(t -> t[1], patch)
+end
+supports = unique((support.(collars)))
 
-(e, V) = eigen(A)
-Rational.(A)*[1//264 for i=1:264]
+A_bhp = transition_matrix(S, 1:263)
+
+(e, V) = eigen(A_bhp)
+Rational.(A_bhp)*[1//263 for i=1:263] == [81//263 for i=1:263]
 
 function forget_collar(i)
     return Dict(collars[i])[He(0,0,0)]
