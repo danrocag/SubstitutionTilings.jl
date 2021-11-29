@@ -11,9 +11,10 @@ import AbstractAlgebra
 using StructEquality
 
 using ...CoreDefs
+using ...Collaring
 
 
-@def_structequal struct ChairElem
+@def_structequal struct ChairElem <: EGroupElem
     angle :: Int # should be 0 ≤ i ≤ 3
     x :: Int
     y :: Int
@@ -41,19 +42,30 @@ function cos(i :: Integer)
 end
 
 
-function CoreDefs.:*(s :: ChairElem, t :: ChairElem)
+function Base.:*(s :: ChairElem, t :: ChairElem)
     return ChairElem(
         (s.angle + t.angle) % 4,
         s.x + cos(s.angle)*t.x + sin(s.angle)*t.y,
         s.y - sin(s.angle)*t.x + cos(s.angle)*t.y
     )
 end
+function Base.:*(s :: ChairElem, t :: Tuple{Integer, Integer})
+    return [
+        s.x + cos(s.angle)*t[1] + sin(s.angle)*t[2],
+        s.y - sin(s.angle)*t[1] + cos(s.angle)*t[2],
+    ]
+end
 
 
 function CoreDefs.dilate(λ :: Int, t :: ChairElem)
     return ChairElem(t.angle, λ*t.x, λ*t.y)
 end
-
+function CoreDefs.id(::ChairElem)
+    return ChairElem(0,0,0)
+end
+function Base.inv(g::ChairElem)
+    return ChairElem(-g.angle,0,0)*ChairElem(0,-g.x, -g.y)
+end
 
 chair_subst = Dict([
     (ChairPTile(), [
@@ -91,6 +103,36 @@ origin = chair(0,0,0)
 
 function in_bounds(t :: Tuple{ChairElem, ChairPTile}, n, window)
     return 2^(n+1)*(abs(t[1].x)) < window.w + 2^(n+1)*3 && 2^(n+1)*(abs(t[1].y)) < window.h + 2^(n+1)*3
+end
+
+
+function squares(g)
+    return g*[
+        (0,0),
+        (0,2),
+        (2,0),
+    ]
+end
+function adjacent(xs,ys)
+    for x in xs
+        for y in ys
+            if max(abs.(x-y)...) ≤ 2
+                return true
+            end
+        end
+    end
+    return false
+end
+function Collaring.collar_in(tiling, g)
+    result = Tuple{ChairElem, ChairPTile}[]
+    tiling_dict = Dict(tiling)
+    squares_g = tiling_dict[g]
+    for (h,l) in tiling_dict
+        if adjacent(squares(g), squares(h))
+            push!(result, (h,l))
+        end
+    end
+    return result
 end
 
 end
