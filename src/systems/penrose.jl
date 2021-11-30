@@ -61,13 +61,13 @@ end
     Hdart=2
 end
 function hkite(r,s,z)
-    return (PenroseElem(r,s,z), Hkite)
+    return PenroseElem(r,s,z) => Hkite
 end
 function hkite()
     return hkite(0,0,L(0))
 end
 function hdart(r,s,z)
-    return (PenroseElem(r,s,z), Hdart)
+    return PenroseElem(r,s,z) => Hdart
 end
 function hdart()
     return hdart(0,0,L(0))
@@ -186,7 +186,7 @@ function force(tiling)
         PenroseElem(8, 0, ζ)*fkite
     ])
 
-    result = convert(Vector{Tuple{PenroseElem, PenrosePTile}}, [])
+    result = convert(Vector{Pair{PenroseElem, PenrosePTile}}, [])
 
     for tile in tiling
         if tile[2] == Hdart
@@ -226,7 +226,7 @@ function frequency(patch, depth)
 
     for label in [Hkite, Hdart]
         domain = substitute(penrose(), [(PenroseElem(0,0,L(0)), label)], depth-1)
-        forced_domain = unique(substitute(forced_penrose(), ([(PenroseElem(0,0,L(0)), label)]), depth-1))
+        forced_domain = unique(substitute(forced_penrose(), ([PenroseElem(0,0,L(0)) => label]), depth-1))
         for tile in domain
             if tile[2] == center_ptile
                 translated_patch = tile[1] * patch
