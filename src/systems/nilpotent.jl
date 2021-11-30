@@ -43,13 +43,13 @@ function CoreDefs.id(::He)
 end
 
 function a(a,b,c)
-    return (He(a,b,c), A)
+    return He(a,b,c) => A
 end
 function a()
     return a(0,0,0)
 end
 function b(a,b,c)
-    return (He(a,b,c), B)
+    return He(a,b,c) => B
 end
 function b()
     return b(0,0,0)

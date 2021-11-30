@@ -49,7 +49,7 @@ function Base.:*(s :: ChairElem, t :: ChairElem)
         s.y - sin(s.angle)*t.x + cos(s.angle)*t.y
     )
 end
-function Base.:*(s :: ChairElem, t :: Tuple{Integer, Integer})
+function Base.:*(s :: ChairElem, t :: Pair{Integer, Integer})
     return [
         s.x + cos(s.angle)*t[1] + sin(s.angle)*t[2],
         s.y - sin(s.angle)*t[1] + cos(s.angle)*t[2],
@@ -69,10 +69,10 @@ end
 
 chair_subst = Dict([
     (ChairPTile(), [
-        (ChairElem(0, -1, -1), ChairPTile()),
-        (ChairElem(0, 1, 1), ChairPTile()),    
-        (ChairElem(1, -1, 5), ChairPTile()),
-        (ChairElem(3, 5, -1), ChairPTile()),
+        ChairElem(0, -1, -1) => ChairPTile(),
+        ChairElem(0, 1, 1) => ChairPTile(),    
+        ChairElem(1, -1, 5) => ChairPTile(),
+        ChairElem(3, 5, -1) => ChairPTile(),
     ])
 ])
 
@@ -101,7 +101,7 @@ end
 
 origin = chair(0,0,0)
 
-function in_bounds(t :: Tuple{ChairElem, ChairPTile}, n, window)
+function in_bounds(t :: Pair{ChairElem, ChairPTile}, n, window)
     return 2^(n+1)*(abs(t[1].x)) < window.w + 2^(n+1)*3 && 2^(n+1)*(abs(t[1].y)) < window.h + 2^(n+1)*3
 end
 
@@ -124,7 +124,7 @@ function adjacent(xs,ys)
     return false
 end
 function Collaring.collar_in(tiling, g)
-    result = Tuple{ChairElem, ChairPTile}[]
+    result = Pair{ChairElem, ChairPTile}[]
     tiling_dict = Dict(tiling)
     squares_g = tiling_dict[g]
     for (h,l) in tiling_dict

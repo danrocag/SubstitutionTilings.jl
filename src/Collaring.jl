@@ -23,7 +23,7 @@ end
 function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
     collars = [initial_collar]
     visited = 0
-    sub = Dict{Int,Vector{Tuple{G, Int}}}([])
+    sub = Dict{Int,Vector{Pair{G, Int}}}([])
     while length(collars) > visited
         new_visited = length(collars)
         for i in (visited+1):length(collars)

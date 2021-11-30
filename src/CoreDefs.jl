@@ -56,8 +56,8 @@ Returns the identity element of the group `g` belongs to.
 function id end
 
 
-function Base.:*(g, x :: Tuple)
-    return (g*x[1], x[2])
+function Base.:*(g, x :: Pair)
+    return g*x[1] => x[2]
 end
 function Base.:*(g, X :: AbstractVector)
     return map(x -> g*x, X)
@@ -66,8 +66,8 @@ function Base.:*(g, X :: AbstractSet)
     return map(x -> g*x, X)
 end
 
-function dilate(λ, x :: Tuple)
-    return (dilate(λ,x[1]), x[2])
+function dilate(λ, x :: Pair)
+    return dilate(λ,x[1]) => x[2]
 end
 function dilate(λ, X :: AbstractVector)
     return map(x -> dilate(λ,x), X)
@@ -80,10 +80,10 @@ end
     draw(t, sc, hue, action)
 
 
-`t` should be a tile: that is, a tuple consisting of some euclidean group element and some prototile.
+`t` should be a tile: that is, a Pair consisting of some euclidean group element and some prototile.
 `draw` draws the tile with the set scale, hue and Luxor action.
 """
-function draw(t :: Tuple{EGroupElem, T}, sc, hue, action :: Symbol) where T
+function draw(t :: Pair{<:EGroupElem, T}, sc, hue, action :: Symbol) where T
     origin()
     scale(sc)
     sethue(hue)
@@ -92,10 +92,10 @@ function draw(t :: Tuple{EGroupElem, T}, sc, hue, action :: Symbol) where T
 end
 
 
-function vertices(t :: Tuple{EGroupElem, T}) where T
+function vertices(t :: Pair{EGroupElem, T}) where T
     return t[1]*vertices(t[2])
 end
-function in_border(x, t :: Tuple{EGroupElem, T}) where T
+function in_border(x, t :: Pair{EGroupElem, T}) where T
     return in_border(inv(t[1])*x, t[2])
 end
 
@@ -107,11 +107,11 @@ The description of an inflation system.
 `G` should be a subset of `EGroupElem` and `dilate(λ' :: D, g :: G)` should be implemented.
 """
 struct SubSystem{G, D, L}
-    sub::Dict{L, Vector{Tuple{G, L}}}
+    sub::Dict{L, Vector{Pair{G, L}}}
     λ :: D
 end
-Tiling{G,L} = Vector{Tuple{G, L}}
-SetTiling{G,L} = Set{Tuple{G, L}}
+VectorTiling{G,L} = AbstractVector{Pair{G, L}}
+DictTiling{G,L} = AbstractDict{G, L}
 
 
 function rational_to_float(x)
@@ -131,6 +131,8 @@ end
 
 Applies `n` inflation steps of the tiling:
 each step dilates the tiling and then substitutes each tile according to the substitution rule of S.
+This version computes the substitution depth first: this is more efficient unless the substitution rule has lots of overlaps
+(see `substitute_bf`)
 
 Optionally, one can filter which tiles are computed by providing `in_bounds` and `window`.
 If provided, `in_bounds` should be a test function `in_bounds(tile, n, window)`
@@ -138,14 +140,14 @@ which recieves a tile, a depth and the supplied window,
 and outputs whether the tile should be substituted further or discarded.
 This can be used to greatly reduce compute times when rendering images of tilings.
 """
-function substitute(S :: SubSystem{G,D,L}, tiling :: Tiling{G,L}, n, in_bounds = nothing, window=nothing) where {G,L,D}
-    result = convert(Tiling{G, L}, [])
+function substitute(S, tiling, n, in_bounds = nothing, window=nothing) where {G,L,D}
+    result = typeof(tiling)()
     for tile in tiling
         substitute_df_inner!(S, n, tile, result, in_bounds, window)
     end
     return result
 end
-function substitute_df_inner!(S, n, tile, result :: Tiling, in_bounds = nothing, window=nothing)
+function substitute_df_inner!(S, n, tile, result, in_bounds = nothing, window=nothing)
     if isnothing(in_bounds) || in_bounds(tile, n, window)
         if n == 0
             push!(result, tile)
@@ -159,7 +161,7 @@ function substitute_df_inner!(S, n, tile, result :: Tiling, in_bounds = nothing,
 end
 
 # set version of the substitute function: use when the substitution rule has overlaps
-function substitute(S :: SubSystem{G,D,L}, tiling :: SetTiling{G, L}, n=1) where {G, L,D}
+function substitute_bf(S, tiling, n=1) where {G, L,D}
     if n == 0
         return tiling
     else
