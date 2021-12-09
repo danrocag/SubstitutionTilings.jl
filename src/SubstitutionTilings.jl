@@ -1,5 +1,4 @@
 module SubstitutionTilings
-__precompile__(false)
 
 
 export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SetTiling, id, vertices, in_border, transition_matrix

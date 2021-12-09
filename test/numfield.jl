@@ -1,9 +1,7 @@
 using SubstitutionTilings.NumFields
-using Nemo
 using BenchmarkTools
 using StaticArrays
 
-ZZ
 @NumFields.simple_number_field Qζ [-1, 1, -1, 1] ζ
 Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
 @macroexpand @NumFields.simple_number_field Qζ ZZ[-1, 1, -1, 1] ζ

@@ -3,7 +3,6 @@ module CoreDefs
 export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, embed_field_elem, GroupElem, EGroupElem, vertices, in_border
 export transition_matrix
 
-using Nemo
 using Luxor
 
 import Base: *

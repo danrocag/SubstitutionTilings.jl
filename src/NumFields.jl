@@ -7,7 +7,7 @@ using StructEquality
 
 
 function embed_field end
-function simplify! end
+function reduce! end
 macro simple_number_field(name, polynomial, generator)
     p = eval(polynomial)
     T = eltype(p)
@@ -55,7 +55,7 @@ macro simple_number_field(name, polynomial, generator)
 
 
         const powers = $powers
-        const $(esc(generator)) = $(esc(name))([i==2 ? 1 : 0 for i=1:$N],1)
+        const $(esc(generator)) = $(esc(name))([i==2 ? 1 : 0 for i=1:$N],1,true)
 
 
 
@@ -93,7 +93,7 @@ macro simple_number_field(name, polynomial, generator)
         function Base.:(==)(x :: $(esc(name)), y :: $(esc(name)))
             reduce!(x)
             reduce!(y)
-            return x.coeffs == y.coeffs & x.denom == y.denom
+            return x.coeffs == y.coeffs && x.denom == y.denom
         end
 
 

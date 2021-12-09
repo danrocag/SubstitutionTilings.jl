@@ -2,25 +2,26 @@ module Penrose
 
 export ζ, ϕ, Qζ_20, hkite, hdart,  penrose, PenroseElem, forced_penrose
 
-using Nemo
 using Luxor
 using StructEquality
+
 #import AbstractAlgebra
 
 using ...CoreDefs
+using ...NumFields
 
-# We work in the 20th cyclotomic field because it has the real and imaginary components of the 10th root
-const Qζ, ζ = CyclotomicField(10, "ζ") 
-const L = Qζ
+@NumFields.simple_number_field Qζ [-1, 1, -1, 1] ζ
+Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
+
 const ϕ = ζ + ζ^9
-function conj(x :: nf_elem)
-    return embed_field_elem(a -> a, ζ^-1, x) :: nf_elem
+function conj(x :: Qζ)
+    return embed_field(a -> a, ζ^9, x)
 end
 
 @def_structequal struct PenroseElem <: EGroupElem
     rot :: Int
     refl :: Bool
-    z :: nf_elem # supposed to be in Qζ
+    z :: Qζ
 end
 
 function Base.:*(g :: PenroseElem, h :: PenroseElem)
@@ -28,24 +29,24 @@ function Base.:*(g :: PenroseElem, h :: PenroseElem)
         return PenroseElem(
             mod(g.rot + h.rot, 10),
             h.refl,
-            g.z + ζ^-g.rot * h.z
+            g.z + ζ^(10-g.rot) * h.z
         )
     else
         return PenroseElem(
             mod(g.rot - h.rot, 10),
             !h.refl,
-            g.z + ζ^-g.rot * conj(h.z)
+            g.z + ζ^(10-g.rot) * conj(h.z)
         )
     end
 end
-function Base.:*(g :: PenroseElem, x :: nf_elem)
+function Base.:*(g :: PenroseElem, x :: Qζ)
     if !g.refl
-        return g.z + ζ^-g.rot * x
+        return g.z + ζ^(10-g.rot) * x
     else
-        return g.z + ζ^-g.rot * conj(x)
+        return g.z + ζ^(10-g.rot) * conj(x)
     end
 end
-function CoreDefs.dilate(λ :: nf_elem, g :: PenroseElem)
+function CoreDefs.dilate(λ :: Qζ, g :: PenroseElem)
     return PenroseElem(g.rot, g.refl, λ*g.z)
 end
 function CoreDefs.id(::PenroseElem)
@@ -77,7 +78,7 @@ end
 
 function embed_nf(x)
     ζ_float = complex(cos(2*pi/10), sin(2*pi/10))
-    return embed_field_elem(complex ∘ rational_to_float, ζ_float, x)
+    return embed_field(complex ∘ rational_to_float, ζ_float, x)
 end
 function embed_nf_p(x)
     z = embed_nf(x)
@@ -123,7 +124,7 @@ function CoreDefs.vertices(ptile::PenrosePTile)
     end
 end
 
-function in_interval(x :: nf_elem)
+function in_interval(x :: Qζ)
     x_float = embed_nf(x)
     return 0 ≤ real(x_float) && real(x_float) ≤ 1 && imag(x_float) ≈ 0
 end
@@ -157,7 +158,7 @@ function penrose()
             hkite(3,1,ζ^6)
         ])
     ])
-    return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, nf_elem, PenrosePTile}
+    return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
 end
 
 function color(x)
@@ -203,23 +204,23 @@ function forced_penrose()
         (label, force(penrose().sub[label]) ) for label in [Hkite, Hdart]
     ])
 
-    return SubSystem(forced_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, nf_elem, PenrosePTile}
+    return SubSystem(forced_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
 end
 
-S, t = PolynomialRing(QQ, "t")
-Qψ, ψ = NumberField(t^2+t-1, "ψ")
+@NumFields.simple_number_field Qψ [1,-1] ψ
+
 function embed_psi(x)
     psi_float = (sqrt(5) - 1)/2
-    return embed_field_elem(rational_to_float, psi_float, x)
+    return embed_field(rational_to_float, psi_float, x)
 end
-# ψ = 1/ϕ, except that ψ is an element of the field Q(ψ) and ϕ is an element of the field Q(ζ_20) 
+# ψ = 1/ϕ, except that ψ is an element of the field Q(ψ) and ϕ is an element of the field Q(ζ_10) 
 
 
 function frequency(patch, depth)
-    freq::nf_elem = Qψ(0)
+    freq = Qψ(0)
     harmonic = Dict([
-        (Hkite, (ψ^(2*depth - 1)) :: nf_elem),
-        (Hdart, (ψ^(2*depth)) :: nf_elem )
+        (Hkite, (ψ^(2*depth - 1))),
+        (Hdart, (ψ^(2*depth)))
     ])
 
     center_ptile = patch[1][2]

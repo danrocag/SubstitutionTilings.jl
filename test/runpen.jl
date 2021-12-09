@@ -5,7 +5,7 @@ using Test
 
 using Luxor
 
-L = Penrose.Qζ
+const L = Penrose.Qζ
 
 
 
@@ -34,11 +34,15 @@ pentagon = [
     PenroseElem(k+s,s,L(1))*PenroseElem(0,0,L(-1)) => Penrose.Hkite
     for k=0:2:10 for s=0:1
 ];
-p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=500, h=500));
+p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=5, h=5));
+p = @time substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=500, h=500));
+@time SubstitutionTilings.CoreDefs.empirical_frequency2([hkite()], p)
+@time empirical_frequency([hkite()], Dict(p))
 for i in 1:10
-    p = substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=i*50, h=i*50));
+    p = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=i*50, h=i*50));
     @time empirical_frequency(pentagon, p)
 end
+length(p)
 
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ

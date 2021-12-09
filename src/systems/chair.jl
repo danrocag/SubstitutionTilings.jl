@@ -1,9 +1,7 @@
 module Chair
-__precompile__(false)
 
 export chair, chair_system, ChairElem, ChairPTile
 
-using Nemo
 using Luxor
 import Luxor.transform
 using Colors

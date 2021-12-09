@@ -1,9 +1,7 @@
 module Nilpotent
-__precompile__(false)
 
 export He, BHPTile, a, b, bhp_subst
 
-using Nemo
 using StructEquality
 using Base.Iterators
 
