@@ -56,13 +56,13 @@ Returns the identity element of the group `g` belongs to.
 function id end
 
 
-function Base.:*(g, x :: Pair)
+function Base.:*(g :: G, x :: Pair) where {G<:GroupElem}
     return g*x[1] => x[2]
 end
-function Base.:*(g, X :: AbstractVector)
+function Base.:*(g :: G, X :: AbstractVector) where {G<:GroupElem}
     return map(x -> g*x, X)
 end
-function Base.:*(g, X :: AbstractSet)
+function Base.:*(g :: G, X :: AbstractSet) where {G<:GroupElem}
     return map(x -> g*x, X)
 end
 
@@ -140,7 +140,7 @@ which recieves a tile, a depth and the supplied window,
 and outputs whether the tile should be substituted further or discarded.
 This can be used to greatly reduce compute times when rendering images of tilings.
 """
-function substitute(S, tiling, n, in_bounds = nothing, window=nothing) where {G,L,D}
+function substitute(S, tiling, n, in_bounds = nothing, window=nothing)
     result = typeof(tiling)()
     for tile in tiling
         substitute_df_inner!(S, n, tile, result, in_bounds, window)
@@ -189,20 +189,17 @@ that is, computes how many translates of `patch` are subsets of `tiling`
 divided by the total amount of tiles in `tiling`.
 """
 
-function empirical_frequency(patch, tiling, center = nothing)
-    if isnothing(center)
-        patch = center_patch(patch)
-        center = 1
-    end
+function empirical_frequency(patch, tiling)
     freq = 0//1
     n = 0
 
-    origin_ptile = patch[center][2]
+    origin_ptile = patch[1][2]
     for tile in tiling
         n += 1
         if origin_ptile == tile[2]
             translated_patch = tile[1]*patch
-            if translated_patch ⊆ tiling
+            #@assert translated_patch[1] ∈ tiling
+            if all(t -> t in tiling, translated_patch)
                 freq += 1
             end
         end

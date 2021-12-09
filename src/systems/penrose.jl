@@ -10,11 +10,11 @@ using StructEquality
 using ...CoreDefs
 
 # We work in the 20th cyclotomic field because it has the real and imaginary components of the 10th root
-Qζ, ζ = CyclotomicField(10, "ζ") 
-L = Qζ
-ϕ = ζ + ζ^9
-function conj(x)
-    return embed_field_elem(a -> a, ζ^-1, x)
+const Qζ, ζ = CyclotomicField(10, "ζ") 
+const L = Qζ
+const ϕ = ζ + ζ^9
+function conj(x :: nf_elem)
+    return embed_field_elem(a -> a, ζ^-1, x) :: nf_elem
 end
 
 @def_structequal struct PenroseElem <: EGroupElem
@@ -225,7 +225,7 @@ function frequency(patch, depth)
     center_ptile = patch[1][2]
 
     for label in [Hkite, Hdart]
-        domain = substitute(penrose(), [(PenroseElem(0,0,L(0)), label)], depth-1)
+        domain = substitute(penrose(), [(PenroseElem(0,0,L(0)) => label)], depth-1)
         forced_domain = unique(substitute(forced_penrose(), ([PenroseElem(0,0,L(0)) => label]), depth-1))
         for tile in domain
             if tile[2] == center_ptile

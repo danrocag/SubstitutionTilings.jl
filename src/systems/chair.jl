@@ -23,7 +23,7 @@ end
 struct ChairPTile end
 
 function chair(angle, x, y)
-    return (ChairElem(angle, x, y), ChairPTile())
+    return ChairElem(angle, x, y) => ChairPTile()
 end
 
 function sin(i :: Integer)
@@ -99,7 +99,7 @@ function CoreDefs.draw(::ChairPTile, action)
     ], close = true, action)
 end
 
-origin = chair(0,0,0)
+const origin = chair(0,0,0)
 
 function in_bounds(t :: Pair{ChairElem, ChairPTile}, n, window)
     return 2^(n+1)*(abs(t[1].x)) < window.w + 2^(n+1)*3 && 2^(n+1)*(abs(t[1].y)) < window.h + 2^(n+1)*3

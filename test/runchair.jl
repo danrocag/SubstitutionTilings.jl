@@ -12,6 +12,10 @@ cross = [
     chair(1,0,-2),
     chair(3,-2,0),
 ]
+
+tiling = substitute(chair_system, [chair(0,0,0)], 8, Chair.in_bounds, (w=80, h=80))
+tiling_dict = Dict(tiling)
+@time empirical_frequency(cross, tiling_dict)
 @draw begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
     sc = 10
@@ -25,6 +29,8 @@ cross = [
         draw(tile, sc, "black", :stroke)
     end
 end 800 800
+
+
 
 Collaring.frequency(chair_system, collar, cross, 4)
 @time sizeof(substitute(chair_system, [chair(0,0,0)], 20, Chair.in_bounds, (w=800, h=800)))
