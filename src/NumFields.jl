@@ -1,10 +1,11 @@
 module NumFields
 
-export embed_field, simplify!
+export embed_field, simplify!, NumField
 
 using StaticArrays
 using StructEquality
 
+abstract type NumField <: Number end
 function embed_field end
 function reduce! end
 macro simple_number_field(name, polynomial, generator)
@@ -22,7 +23,7 @@ macro simple_number_field(name, polynomial, generator)
     println(powers)
 
     return quote
-        mutable struct $name <: Number
+        mutable struct $name <: NumField
             coeffs :: MVector{$N, $(esc(T))}
             denom :: $(esc(T))
             reduced :: Bool
@@ -36,6 +37,7 @@ macro simple_number_field(name, polynomial, generator)
         end
 
 
+
         function ($(esc(name)))(n :: Rational{Integer})
             x = ($(esc(name)))(numerator(n))
             x.denom = denominator(n)
@@ -47,7 +49,7 @@ macro simple_number_field(name, polynomial, generator)
                 divisor = gcd(x.coeffs..., x.denom)
                 x.coeffs = [div(c,divisor) for c in x.coeffs]
                 x.denom = div(x.denom, divisor)
-                x.reduced = false
+                x.reduced = true
             end
             return x
         end
@@ -98,6 +100,15 @@ macro simple_number_field(name, polynomial, generator)
 
         function Base.://(x :: $(esc(name)), y :: Number)
             return $(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y), false)
+        function Base.hash(x :: $(esc(name)))
+            reduce!(x)
+            return hash((x.coeffs, x.denom))
+        end
+
+
+
+        function Base.:/(x :: $(esc(name)), y :: Integer)
+            return $(esc(name))(x.coeffs,x.denom*y, false)
         end
 
 
