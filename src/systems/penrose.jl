@@ -1,6 +1,6 @@
 module Penrose
 
-export ζ, ϕ, Qζ_20, hkite, hdart,  penrose, PenroseElem, forced_penrose
+export ζ, ϕ, Qζ, hkite, hdart,  penrose, PenroseElem, forced_penrose
 
 using Luxor
 using StructEquality
@@ -11,11 +11,26 @@ using ...CoreDefs
 using ...NumFields
 
 @NumFields.simple_number_field Qζ [-1, 1, -1, 1] ζ
-Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
+
 
 const ϕ = ζ + ζ^9
+
+Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
 function conj(x :: Qζ)
     return embed_field(a -> a, ζ^9, x)
+end
+
+function galois_gen(x :: Qζ)
+    return embed_field(a -> a, ζ^3, x)
+end
+
+function Base.://(x :: Qζ, y :: Qζ)
+    y1 = galois_gen(y)
+    y2 = galois_gen(y1)
+    y3 = galois_gen(y2)
+    alg_conj = y1*y2*y3
+    norm = y*alg_conj
+    return x*alg_conj*norm.denom//norm.coeffs[1]
 end
 
 @def_structequal struct PenroseElem <: EGroupElem

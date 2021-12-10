@@ -5,7 +5,6 @@ export embed_field, simplify!
 using StaticArrays
 using StructEquality
 
-
 function embed_field end
 function reduce! end
 macro simple_number_field(name, polynomial, generator)
@@ -23,7 +22,7 @@ macro simple_number_field(name, polynomial, generator)
     println(powers)
 
     return quote
-        mutable struct $name <: Integer
+        mutable struct $name <: Number
             coeffs :: MVector{$N, $(esc(T))}
             denom :: $(esc(T))
             reduced :: Bool
@@ -82,12 +81,12 @@ macro simple_number_field(name, polynomial, generator)
             return $(esc(name))(coeffs, x.denom*y.denom, false)
         end
 
-        function Base.:*(x :: $(esc(name)), y :: Integer)
-            $(esc(name))(x.coeffs*y,x.denom, x.reduced)
+        function Base.:*(x :: $(esc(name)), y :: Number)
+            $(esc(name))(x.coeffs*numerator(y),x.denom*denominator(y), false)
         end
 
-        function Base.:*(x :: Integer, y :: $(esc(name)))
-            $(esc(name))(y.coeffs*x,y.denom, y.reduced)
+        function Base.:*(x :: Number, y :: $(esc(name)))
+            $(esc(name))(y.coeffs*numerator(x),y.denom*denominator(x), false)
         end
 
         function Base.:(==)(x :: $(esc(name)), y :: $(esc(name)))
@@ -97,16 +96,15 @@ macro simple_number_field(name, polynomial, generator)
         end
 
 
-
-        function Base.:/(x :: $(esc(name)), y :: Integer)
-            return $(esc(name))(x.coeffs,x.denom*y, false)
+        function Base.://(x :: $(esc(name)), y :: Number)
+            return $(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y), false)
         end
 
 
         function NumFields.embed_field(map_coeff, map_gen, x :: $(esc(name)))
-            result = 0 :: typeof(map_gen)
+            result = zero(typeof(map_gen))
             for i=1:$N
-                result += map_coeff(x.coeffs[i])*map_gen^i
+                result += map_coeff(x.coeffs[i])*map_gen^(i-1)
             end
             return result
         end
