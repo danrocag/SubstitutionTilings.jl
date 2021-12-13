@@ -33,7 +33,7 @@ end
 
 fib = SubSystem(Dict(A => [FibElem(Qτ(-1)/2) => A, FibElem(τ/2) => B], B => [FibElem(0) => A]),τ)
 
-fib_tiling = substitute(fib, ([FibElem(0) => A]),5)
+fib_tiling = substitute(fib, Dict([FibElem(0) => A]),5)
 
 for tile in (fib_tiling)
     (NumFields.reduce!(tile[1].a))
