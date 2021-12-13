@@ -4,7 +4,6 @@ export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical
 export transition_matrix
 
 using Luxor
-using Dictionaries
 
 import Base: *
 
@@ -54,6 +53,9 @@ function draw end
 Returns the identity element of the group `g` belongs to.
 """
 function id end
+function id(x)
+    return id(typeof(x))
+end
 
 
 function Base.:*(g :: G, x :: Pair) where {G<:GroupElem}
@@ -64,6 +66,9 @@ function Base.:*(g :: G, X :: AbstractVector) where {G<:GroupElem}
 end
 function Base.:*(g :: G, X :: AbstractSet) where {G<:GroupElem}
     return map(x -> g*x, X)
+end
+function Base.:*(g :: G, X :: AbstractDict) where {G<:GroupElem}
+    return typeof(X)(g*x for x in X)
 end
 
 function dilate(λ, x :: Pair)
@@ -189,20 +194,19 @@ that is, computes how many translates of `patch` are subsets of `tiling`
 divided by the total amount of tiles in `tiling`.
 """
 
-function empirical_frequency(patch :: AbstractArray, tiling :: Dictionary)
-    return empirical_frequency(Dictionary(Dict(patch)), tiling)
+function empirical_frequency(patch :: AbstractArray, tiling :: Dict)
+    return empirical_frequency((Dict(patch)), tiling)
 end
-function empirical_frequency(patch :: Dictionary, tiling :: Dictionary)
+function empirical_frequency(patch :: Dict, tiling :: Dict{G, L}) where {G<:GroupElem, L}
     freq = 0//1
     n = 0
 
-    origin_ptile = patch[id(collect(keys(patch))[1])]
+    origin_ptile = patch[id(G)]
     for g in keys(tiling)
         n += 1
         if origin_ptile == tiling[g]
             translated_patch = g*patch
-            println(translated_patch)
-            if all(g -> isassigned(tiling,g) && tiling[g] == translated_patch[g], keys(translated_patch))
+            if translated_patch ⊆ tiling
                 freq += 1
             end
         end

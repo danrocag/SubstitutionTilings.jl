@@ -3,7 +3,7 @@ using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ
 using Test
 using BenchmarkTools
-using Dictionaries
+using Plots
 
 using Luxor
 
@@ -32,18 +32,22 @@ sc = 80
     draw(first_tile, sc, "black", :stroke)
 end width height
 
-pentagon = Dictionary(Dict([
+pentagon = (Dict([
     PenroseElem(mod(k+s,10),s,L(1))*PenroseElem(0,0,L(-1)) => Penrose.Hkite
     for k=0:2:10 for s=0:1
 ]));
-p = substitute(penrose(), [hkite()], 11)
 p = @time substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=500, h=500));
-@time empirical_frequency([hkite()], Dictionary(Dict(p)))
-for i in 1:10
-    p = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=i*50, h=i*50));
-    @time empirical_frequency(pentagon, Dictionary(p))
+@time float(empirical_frequency(pentagon, (Dict(p))))
+t = zeros(200)
+n = zeros(200)
+for i in 1:200
+    p = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=i*2, h=i*2));
+    time = @timed empirical_frequency(pentagon, Dict(p))
+    t[i] = time.time
+    n[i] = length(p)
 end
-length(p)
+
+plot(n,t) # essentially linear in the amont of tiles: pretty good!
 
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ

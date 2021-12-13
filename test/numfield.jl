@@ -1,23 +1,22 @@
 using SubstitutionTilings.NumFields
-using BenchmarkTools
 using StaticArrays
 
 @NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
 Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
-@macroexpand @NumFields.simple_number_field Qζ ZZ[-1, 1, -1, 1] ζ
 
 function func_macro(x::Qζ)
-    return simplify!(x*x*x*x*x - x*x + x)
+    return reduce!(x*x*x*x*x - x*x + x)
 end
-@benchmark func_macro(data) setup=(data=Qζ(rand(1:10,4),2)) #1.3 microseconds mutable
+@benchmark func_macro(data) setup=(data=Qζ(rand(1:1000,4)))
+# median 749 ns microseconds mutable
 
-S, t = PolynomialRing(QQ, "t")
-Qzeta, zeta = NumberField(t^4-t^3+t^2-t+1, "ζ")
-function func_nemo(x::nf_elem)
+@NumFields.simple_number_field_concrete Qζ2 [-1, 1, -1, 1] ζ2
+Base.promote_rule(::Type{Qζ2}, ::Type{<:Integer}) = Qζ2
+function func_concrete(x)
     return x*x*x*x*x - x*x + x
 end
-@benchmark func_nemo(data) setup=(data=rand(1:10) + zeta*rand(1:10)+ zeta^2*rand(1:10) + zeta^3*rand(1:10))
-#9 microsecond
+@benchmark func_concrete(data) setup=(data=Qζ2(rand(1:1000,4)))
+# median 1.7 micros
 
 function arith(x)
     return div(x[1] * x[2] - x[4], x[3]^5)

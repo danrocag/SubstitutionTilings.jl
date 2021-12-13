@@ -1,6 +1,6 @@
 module Penrose
 
-export ζ, ϕ, Qζ, hkite, hdart,  penrose, PenroseElem, forced_penrose
+export ζ, ϕ, Qζ, hkite, hdart,  penrose, PenroseElem, forced_penrose, conj, galois_gen
 
 using Luxor
 using StructEquality
@@ -10,7 +10,7 @@ using StructEquality
 using ...CoreDefs
 using ...NumFields
 
-@NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
+@NumFields.simple_number_field_concrete Qζ [-1, 1, -1, 1] ζ
 
 
 const ϕ = ζ + ζ^9
@@ -65,7 +65,7 @@ end
 function CoreDefs.dilate(λ :: Qζ, g :: PenroseElem)
     return PenroseElem(g.rot, g.refl, λ*g.z)
 end
-function CoreDefs.id(::PenroseElem)
+function CoreDefs.id(::Type{PenroseElem})
     return PenroseElem(0,0,L(0))
 end
 function Base.inv(p::PenroseElem)
@@ -193,7 +193,7 @@ end
 function force(tiling)
     fkite = [
         hkite(0,0,L(0))
-        hkite(9, 1, ζ^-2//ϕ)
+        hkite(9, 1, ζ^8//ϕ)
     ]
 
     fdart = unique([
@@ -223,7 +223,7 @@ function forced_penrose()
     return SubSystem(forced_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
 end
 
-@NumFields.simple_number_field Qψ [1,-1] ψ
+@NumFields.simple_number_field_concrete Qψ [1,-1] ψ
 
 function embed_psi(x)
     psi_float = (sqrt(5) - 1)/2
@@ -231,23 +231,25 @@ function embed_psi(x)
 end
 # ψ = 1/ϕ, except that ψ is an element of the field Q(ψ) and ϕ is an element of the field Q(ζ_10) 
 
-
-function frequency(patch, depth)
+function frequency(patch :: AbstractVector, depth)
+    return frequency(Dict(patch), depth)
+end
+function frequency(patch :: AbstractDict, depth)
     freq = Qψ(0)
     harmonic = Dict([
         (Hkite, (ψ^(2*depth - 1))),
         (Hdart, (ψ^(2*depth)))
     ])
 
-    center_ptile = patch[1][2]
+    center_ptile = patch[id(PenroseElem)]
 
     for label in [Hkite, Hdart]
         domain = substitute(penrose(), [(PenroseElem(0,0,L(0)) => label)], depth-1)
-        forced_domain = unique(substitute(forced_penrose(), ([PenroseElem(0,0,L(0)) => label]), depth-1))
+        forced_domain = Dict(substitute(forced_penrose(), ([PenroseElem(0,0,L(0)) => label]), depth-1))
         for tile in domain
             if tile[2] == center_ptile
                 translated_patch = tile[1] * patch
-                if all(t -> t in forced_domain, translated_patch)
+                if translated_patch ⊆ forced_domain
                     freq += harmonic[label]
                 end
             end
