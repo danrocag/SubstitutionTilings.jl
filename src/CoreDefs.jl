@@ -4,6 +4,7 @@ export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical
 export transition_matrix
 
 using Luxor
+using Dictionaries
 
 import Base: *
 
@@ -188,17 +189,20 @@ that is, computes how many translates of `patch` are subsets of `tiling`
 divided by the total amount of tiles in `tiling`.
 """
 
-function empirical_frequency(patch, tiling)
+function empirical_frequency(patch :: AbstractArray, tiling :: Dictionary)
+    return empirical_frequency(Dictionary(Dict(patch)), tiling)
+end
+function empirical_frequency(patch :: Dictionary, tiling :: Dictionary)
     freq = 0//1
     n = 0
 
-    origin_ptile = patch[1][2]
-    for tile in tiling
+    origin_ptile = patch[id(collect(keys(patch))[1])]
+    for g in keys(tiling)
         n += 1
-        if origin_ptile == tile[2]
-            translated_patch = tile[1]*patch
-            #@assert translated_patch[1] ∈ tiling
-            if all(t -> t in tiling, translated_patch)
+        if origin_ptile == tiling[g]
+            translated_patch = g*patch
+            println(translated_patch)
+            if all(g -> isassigned(tiling,g) && tiling[g] == translated_patch[g], keys(translated_patch))
                 freq += 1
             end
         end
