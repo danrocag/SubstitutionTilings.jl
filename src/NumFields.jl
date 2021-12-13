@@ -193,7 +193,7 @@ macro simple_number_field_concrete(name, polynomial, generator)
         end
 
         function Base.:-(x :: $(esc(name)))
-            return ($(esc(name))(-x.coeffs, x.denom, x.reduced))
+            return ($(esc(name))(-x.coeffs, x.denom))
         end
 
         function Base.:*(x :: $(esc(name)), y :: $(esc(name)))

@@ -8,7 +8,6 @@ using Luxor
 import Base: *
 
 
-
 """
     GroupElem
 
@@ -53,9 +52,6 @@ function draw end
 Returns the identity element of the group `g` belongs to.
 """
 function id end
-function id(x)
-    return id(typeof(x))
-end
 
 
 function Base.:*(g :: G, x :: Pair) where {G<:GroupElem}
@@ -205,6 +201,23 @@ function empirical_frequency(patch :: Dict, tiling :: Dict{G, L}) where {G<:Grou
     for g in keys(tiling)
         n += 1
         if origin_ptile == tiling[g]
+            translated_patch = g*patch
+            if translated_patch ⊆ tiling
+                freq += 1
+            end
+        end
+    end
+    freq = freq//n
+    return freq
+end
+function empirical_frequency(patch :: AbstractArray, tiling :: AbstractArray)
+    freq = 0//1
+    n = 0
+
+    origin_ptile = patch[1]
+    for (g,l) in tiling
+        n += 1
+        if (g => l) in tiling
             translated_patch = g*patch
             if translated_patch ⊆ tiling
                 freq += 1

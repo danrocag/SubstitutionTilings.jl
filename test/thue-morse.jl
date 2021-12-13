@@ -29,10 +29,14 @@ function CoreDefs.id(::TM)
     return TM(0)
 end
 
-function Collaring.collar_in(tiling, t :: TM)
+function Collaring.is_interior(tiling :: Dict, t :: TM)
+    return haskey(t.a, tiling) && haskey(t.a-1, tiling) && haskey(t.a+1, tiling)
+end
+
+function Collaring.collar_in(tiling :: Dict, t :: TM)
     collar_shape = t*[TM(x) for x in [-2,0,2]]
     collar = []
-    tiling_dict = Dict(tiling)
+    tiling_dict = tiling
     for s in collar_shape
         if !haskey(tiling_dict, s)
             throw(Collaring.UnrecognizedCollar)

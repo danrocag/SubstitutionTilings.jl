@@ -4,20 +4,22 @@ using ...CoreDefs
 using StructEquality
 using LinearAlgebra
 
-export collar_in
+export collar_in, is_interior
 
 function collar_in end
+function is_interior end
 
 function collar_class(tiling, g)
     return inv(g)*collar_in(tiling, g)
 end
 
 function center_label(patch)
-    return Dict(patch)[id(patch[1][1])]
+    e = id(typeof(collect(keys(patch))[1]))
+    return patch[e]
 end
 function center_tile(patch)
-    e = id(patch[1][1])
-    return (e, Dict(patch)[e])
+    e = id(typeof(collect(keys(patch))[1] ))
+    return e => patch[e]
 end
 
 function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
@@ -33,10 +35,10 @@ function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
                 class = collar_class(patch, t[1])
                 search = findfirst(c -> issetequal(class, c), collars)
                 if !isnothing(search)
-                    push!(sub[i], (t[1], search))
+                    push!(sub[i], t[1] => search)
                 else
                     push!(collars, class)
-                    push!(sub[i], (t[1], length(collars)))
+                    push!(sub[i], t[1] => length(collars))
                 end
             end
         end
@@ -45,34 +47,69 @@ function accessible_subst(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
     return (collars, SubSystem(sub, S.λ))
 end
 
-function frequency(S, initial_collar, patch, depth)
+function product_patch_subset(patch, tiling)
+    for (g, collars) in patch
+        for collar in collars
+            if g*collar ⊊ tiling
+                return false
+            end 
+        end
+    end
+    return true
+end
+
+function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where {G, D, L}
     (collars, Sc) = accessible_subst(S, initial_collar)
     n = length(collars)
-    println(n)
     A_tr = transition_matrix(Sc, 1:n)
     (eigenvalues, eigenvectors) = eigen(A_tr)
     λ_PF = eigenvalues[n]
-    v_PF = eigenvectors[n]
+    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
 
-    
+    ptiles = unique([collar[id(G)] for collar in collars])
+    collars_of_ptile = Dict([ptile => [] for ptile in ptiles])
+    for i = 1:n
+        push!(collars_of_ptile[collars[i][id(G)]], i)
+    end
 
-    e = id(patch[1][1])
 
-    patches_c = Base.product(([(t[1], l) for l in filter(c -> center_label(c) == t[2], collars)] for t in patch)...)
+    patch_c = Dict([])
+    for (g,l) in patch
+        if is_interior(patch, g)
+            patch_c[g] = (:interior, l)
+        else
+            patch_c[g] = (:exterior, collars_of_ptile[l])
+        end
+    end
 
-    freq = 0//1
+    println(patch_c)
+
+    freq = 0.0
     for label in 1:n
-        domain = substitute(Sc, [(e, label)], depth-1)
+        domain = substitute(Sc, [id(G) => label], depth-1)
         forced_uncollared_domain = substitute(S, collars[label], depth-1)
-        forced_domain = Dict(filter(!isnothing, map(t -> (t[1], recognize_collar(forced_uncollared_domain, t[1])), forced_uncollared_domain)))
+
+        println(forced_uncollared_domain)
         for tile in domain
-            if center_tile(tile[2]) == center_ptile
-                translated_patches = Ref(tile[1]) .* patches_c
-                for patch_c in translated_patches_c
-                    if Dict(patch_c) ⊆ forced_domain
-                        freq += v_PF[label]/λ_PF^(depth-1)
+            translated_patch_c = tile[1] * patch_c
+            is_subset = true
+            for (g, (kind, detect)) in translated_patch_c
+                if kind == :interior
+                    if (g => detect) ∉ forced_uncollared_domain
+                        is_subset = false
+                        break
+                    end
+                else
+                    for c in detect
+                        if g*collars[c] ⊊ forced_uncollared_domain
+                            is_subset = false
+                            break
+                        end
                     end
                 end
+            end
+            if is_subset
+                freq += v_PF[label]/λ_PF^(depth-1)
             end
         end
     end
