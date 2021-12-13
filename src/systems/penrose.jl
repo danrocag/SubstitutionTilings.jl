@@ -10,10 +10,11 @@ using StructEquality
 using ...CoreDefs
 using ...NumFields
 
-@NumFields.simple_number_field Qζ [-1, 1, -1, 1] ζ
+@NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
 
 
 const ϕ = ζ + ζ^9
+const L = Penrose.Qζ
 
 Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
 function conj(x :: Qζ)
@@ -68,7 +69,7 @@ function CoreDefs.id(::PenroseElem)
     return PenroseElem(0,0,L(0))
 end
 function Base.inv(p::PenroseElem)
-    return PenroseElem(0,p.refl,L(0))*PenroseElem(-p.rot,0,L(0))*PenroseElem(0,0,-p.z)
+    return PenroseElem(0,p.refl,L(0))*PenroseElem(10-p.rot,0,L(0))*PenroseElem(0,0,-p.z)
 end
 
 
