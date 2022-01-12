@@ -1,6 +1,6 @@
 module CoreDefs
 
-export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, embed_field_elem, GroupElem, EGroupElem, vertices, in_border
+export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, embed_field_elem, GroupElem, EGroupElem, in_border
 export transition_matrix
 
 using Luxor
@@ -93,9 +93,6 @@ function draw(t :: Pair{<:EGroupElem, T}, sc, hue, action :: Symbol) where T
 end
 
 
-function vertices(t :: Pair{EGroupElem, T}) where T
-    return t[1]*vertices(t[2])
-end
 function in_border(x, t :: Pair{EGroupElem, T}) where T
     return in_border(inv(t[1])*x, t[2])
 end
@@ -263,7 +260,7 @@ end
 
 function transition_matrix(S, order)
     n = length(order)
-    return [count(t -> t[2]==order[j],S.sub[order[i]]) for i=1:n, j=1:n ]
+    return [count(t -> t[2]==order[i],S.sub[order[j]]) for i=1:n, j=1:n ]
 end
 
 

@@ -8,8 +8,8 @@ using StructEquality
 abstract type NumField <: Number end
 function embed_field end
 function reduce! end
-macro simple_number_field_lazy(name, polynomial, generator)
-    p = eval(polynomial)
+macro simple_number_field_lazy(name, field_gen_coeffs, generator)
+    p = eval(field_gen_coeffs)
     T = eltype(p)
     N = length(p)
 
@@ -20,7 +20,6 @@ macro simple_number_field_lazy(name, polynomial, generator)
     A[:, N] = p
     A_gen = SMatrix{N, N, T}(A)
     powers = [(A_gen^i)[:, 1] for i=0:2*N-2]
-    println(powers)
 
     return quote
         mutable struct $name <: NumField
@@ -133,8 +132,8 @@ macro simple_number_field_lazy(name, polynomial, generator)
     end
 end
 
-macro simple_number_field_concrete(name, polynomial, generator)
-    p = eval(polynomial)
+macro simple_number_field_concrete(name, field_gen_coeffs, generator)
+    p = eval(field_gen_coeffs)
     T = eltype(p)
     N = length(p)
 
@@ -145,7 +144,6 @@ macro simple_number_field_concrete(name, polynomial, generator)
     A[:, N] = p
     A_gen = SMatrix{N, N, T}(A)
     powers = [(A_gen^i)[:, 1] for i=0:2*N-2]
-    println(powers)
 
     return quote
         struct $name <: NumField
@@ -159,18 +157,16 @@ macro simple_number_field_concrete(name, polynomial, generator)
             end
         end
 
+        # Basic conversion
         Base.promote_rule(::Type{$(esc(name))}, ::Type{$(esc(T))}) = $(esc(name))
 
         function ($(esc(name)))(n :: Integer)
             n_converted = convert($(esc(T)), n)
             return $(esc(name))([i==1 ? n_converted : 0 for i=1:$N], 1)
         end
-
         function ($(esc(name)))(v :: AbstractVector{<:Integer})
             return $(esc(name))(v, 1)
         end
-
-
         function ($(esc(name)))(n :: Rational{<:Integer})
             x = ($(esc(name)))(numerator(n))
             x.denom = denominator(n)
@@ -178,24 +174,20 @@ macro simple_number_field_concrete(name, polynomial, generator)
         end
 
 
+        # Addition, substraction and multiplication
         const powers = $powers
         const $(esc(generator)) = $(esc(name))([i==2 ? 1 : 0 for i=1:$N],1)
-
 
 
         function Base.:+(x :: $(esc(name)), y :: $(esc(name)))
             return ($(esc(name))(x.coeffs*y.denom + y.coeffs*x.denom, x.denom*y.denom))
         end
-
-
         function Base.:-(x :: $(esc(name)), y :: $(esc(name)))
             return ($(esc(name))(x.coeffs*y.denom - y.coeffs*x.denom, x.denom*y.denom))
         end
-
         function Base.:-(x :: $(esc(name)))
             return ($(esc(name))(-x.coeffs, x.denom))
         end
-
         function Base.:*(x :: $(esc(name)), y :: $(esc(name)))
             coeffs = zeros(SVector{$N, $(esc(T))})
 
@@ -209,37 +201,34 @@ macro simple_number_field_concrete(name, polynomial, generator)
             
             return ($(esc(name))(coeffs, x.denom*y.denom))
         end
-
         function Base.:*(x :: $(esc(name)), y :: Number)
             return ($(esc(name))(x.coeffs*numerator(y),x.denom*denominator(y)))
         end
-
         function Base.:*(x :: Number, y :: $(esc(name)))
             return ($(esc(name))(y.coeffs*numerator(x),y.denom*denominator(x)))
         end
 
+        # Equality and hashes
         function Base.:(==)(x :: $(esc(name)), y :: $(esc(name)))
             return x.coeffs == y.coeffs && x.denom == y.denom
         end
         function Base.isequal(x :: $(esc(name)), y :: $(esc(name)))
             return x == y
         end
-
-
-        function Base.://(x :: $(esc(name)), y :: Number)
-            return ($(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y)))
-        end
         function Base.hash(x :: $(esc(name)))
             return hash((x.coeffs, x.denom))
         end
 
 
-
-        function Base.:/(x :: $(esc(name)), y :: Integer)
-            return ($(esc(name))(x.coeffs,x.denom*y))
+        # Division        
+        function Base.://(x :: $(esc(name)), y :: Number)
+            return ($(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y)))
         end
 
 
+
+
+        # Universal property
         function NumFields.embed_field(map_coeff, map_gen, x :: $(esc(name)))
             result = zero(typeof(map_gen))
             for i=1:$N
@@ -247,6 +236,7 @@ macro simple_number_field_concrete(name, polynomial, generator)
             end
             return result
         end
+
     end
 end
 

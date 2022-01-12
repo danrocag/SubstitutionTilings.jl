@@ -124,21 +124,6 @@ function CoreDefs.draw(ptile::PenrosePTile, action)
         ], close = true, action)
     end
 end
-function CoreDefs.vertices(ptile::PenrosePTile)
-    if ptile == Hkite
-        return [
-            L(1),
-            ζ^4,
-            ζ^6,
-        ]
-    else
-        return [
-            L(0),
-            ζ^2-1,
-            ζ^8-1,
-        ]
-    end
-end
 
 function in_interval(x :: Qζ)
     x_float = embed_nf(x)

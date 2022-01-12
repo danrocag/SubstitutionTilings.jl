@@ -67,7 +67,7 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
     v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
 
     ptiles = unique([collar[id(G)] for collar in collars])
-    collars_of_ptile = Dict([ptile => [] for ptile in ptiles])
+    collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
     for i = 1:n
         push!(collars_of_ptile[collars[i][id(G)]], i)
     end
@@ -82,14 +82,12 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
         end
     end
 
-    println(patch_c)
 
     freq = 0.0
     for label in 1:n
         domain = substitute(Sc, [id(G) => label], depth-1)
         forced_uncollared_domain = substitute(S, collars[label], depth-1)
 
-        println(forced_uncollared_domain)
         for tile in domain
             translated_patch_c = tile[1] * patch_c
             is_subset = true
@@ -100,11 +98,9 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
                         break
                     end
                 else
-                    for c in detect
-                        if g*collars[c] ⊊ forced_uncollared_domain
-                            is_subset = false
-                            break
-                        end
+                    if !any(c -> c ⊆ forced_uncollared_domain, Ref(g).*collars[detect])
+                        is_subset = false
+                        break
                     end
                 end
             end

@@ -120,7 +120,7 @@ function adjacent(xs,ys)
     end
     return false
 end
-function Collaring.collar_in(tiling, g)
+function Collaring.collar_in(tiling, g::ChairElem)
     result = Pair{ChairElem, ChairPTile}[]
     tiling_dict = Dict(tiling)
     squares_g = tiling_dict[g]

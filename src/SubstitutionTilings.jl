@@ -13,8 +13,8 @@ using .Collaring
 #using .Heisenberg
 include("systems/penrose.jl")
 using .Penrose
-#include("systems/pinwheel.jl")
-#using .Pinwheel
+include("systems/pinwheel.jl")
+using .Pinwheel
 #include("systems/heisenberg-improper.jl")
 #using .HeisenbergImproper
 include("systems/nilpotent.jl")

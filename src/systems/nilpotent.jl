@@ -36,7 +36,7 @@ function Base.inv(x :: He)
     return He(-x.a, -x.b, -x.c)
 end
 
-function CoreDefs.id(::He)
+function CoreDefs.id(::Type{He})
     return He(0,0,0)
 end
 
@@ -228,15 +228,21 @@ end
 
 function Collaring.collar_in(tiling, t ::He)
     collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
-    collar = []
+    collar = Dict([])
     tiling_dict = Dict(tiling)
     for s in collar_shape
         if !haskey(tiling_dict, s)
             throw(Collaring.UnrecognizedCollar)
         end
-        push!(collar, (s,tiling_dict[s]))
+        collar[s] = tiling_dict[s]
     end
     return collar
+end
+
+
+function Collaring.is_interior(tiling :: Dict, t :: He)
+    collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
+    return all(g -> haskey(tiling, g), collar_shape)
 end
 
 end
