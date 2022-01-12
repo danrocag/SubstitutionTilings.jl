@@ -51,6 +51,7 @@ function Collaring.collar_in(tiling :: Dict, t :: FibElem)
     return collar
 end
 
+
 fib = SubSystem(Dict(A => [FibElem(Qτ(-1)/2) => A, FibElem(τ/2) => B], B => [FibElem(0) => A]),τ)
 
 fib_tiling = substitute(fib, Dict([FibElem(0) => A]), 3)
@@ -58,4 +59,5 @@ initial_collar = collar_in(fib_tiling, FibElem(0))
 
 (collars, fib_c) = Collaring.accessible_subst(fib, initial_collar)
 
-Collaring.frequency(fib, initial_collar, initial_collar, 2)
+
+Collaring.frequency(fib, initial_collar, collars[4], 4)

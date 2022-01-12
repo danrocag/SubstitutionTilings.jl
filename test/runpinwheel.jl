@@ -1,5 +1,6 @@
 using SubstitutionTilings
 using SubstitutionTilings.Pinwheel
+using SubstitutionTilings.Collaring
 using Test
 
 using Luxor
@@ -10,28 +11,13 @@ using Profile
 K = Pinwheel.K
 
 
-
-@time collars = SubstitutionTilings.CoreDefs.partial_collars(pinwheel(), 0, 6);
-length(collars)
-
-
 w = 800
 h = 800
 sc = 60
 @draw begin
     colors = ["#DD93FC", "#E7977A",]
-    """
-    first_tile = wheel(0,0,0,-i//2 - 1//4)
-    tiling = substitute(pinwheel(), [first_tile],3)
-    filter!(
-        tile -> any(v -> in_border(v//sq5^3, first_tile), vertices(tile)),
-        tiling)
-    """
-    #"""
-    first_tile = wheel()
-    tiling  = collars[4]
-    #"""
-    #display(map(vertices, tiling))
+
+    tiling = [wheel(), wheel(0,0,1,K(0)), wheel(0,2,0,K(0)), wheel(0,2,1,K(0))]
     setline(1)
 
     for tile in tiling
@@ -40,25 +26,27 @@ sc = 60
         draw(tile, sc, "black", :stroke)
     end
     setline(2)
-    draw(first_tile, sc*sqrt(5)^0, "black", :stroke)
+    draw(first_tile, sc, "black", :stroke)
 end w h
 
+vertex_star = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,1,0,-i)])
+initial_collar = collar_in(Dict(Pinwheel.PinwheelElem(0,0,0,-i-1)*substitute(pinwheel(), [first_tile], 2)), Pinwheel.PinwheelElem(0,0,0,K(0)))
 
+vertex_star_2 = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,2,0,K(0)), wheel(0,2,1,K(0))])
+@time Collaring.frequency(pinwheel(), initial_collar, vertex_star,2)
+@time Collaring.frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
 
+@draw begin
+    colors = ["#DD93FC", "#E7977A",]
 
-pentagon = [
-    (PenroseElem(k+s,s,L(1))*PenroseElem(0,0,L(-1)),Penrose.Hkite)
-    for k=0:2:10 for s=0:1
-];
-p = @time substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=100, h=100));
-@time empirical_frequency(pentagon, p)
+    tiling = collars[24]
+    setline(1)
 
-
-@testset "Frequencies" begin
-    @test Penrose.frequency([hkite()], 4) == ψ
-    @test Penrose.frequency([hdart()], 4) == 1-ψ
-    @test Penrose.frequency(pentagon, 4) == 7*ψ - 4
-    @test Penrose.frequency(pentagon, 5) == 7*ψ - 4
-    @test Penrose.frequency(pentagon, 6) == 7*ψ - 4
-end
-
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
+        draw(tile, sc, "black", :stroke)
+    end
+    setline(2)
+    draw(first_tile, sc, "black", :stroke)
+end w h
