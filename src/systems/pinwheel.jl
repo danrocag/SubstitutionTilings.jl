@@ -8,7 +8,6 @@ using Luxor
 using StructEquality
 
 using ...CoreDefs
-using ...Collaring
 
 
 Qx, x = QQ["x"]
@@ -21,7 +20,7 @@ i = inv(Pinwheel.nsmap)(a[2])
 conj = complex_conjugation(K)
 
 
-@def_structequal struct PinwheelElem <: EGroupElem
+@def_structequal struct PinwheelElem <: DGroupElem
     rot_ζ :: Int
     rot_i :: Int
     refl :: Bool
@@ -133,7 +132,7 @@ function precollar_in(tiling :: Dict, g :: PinwheelElem)
     return Dict(precollar)
 end
 
-function Collaring.is_interior(tiling :: Dict, g :: PinwheelElem)
+function is_interior(tiling :: Dict, g :: PinwheelElem)
     angle_sums = Dict(g => (0,0) for k in keys(vertices(g => tiling[g])))
     for tile in tiling
         for (vertex,angle) in vertices(tile)
@@ -151,10 +150,10 @@ function Collaring.is_interior(tiling :: Dict, g :: PinwheelElem)
     return true
 end
 
-function Collaring.collar_in(tiling :: Dict, g :: PinwheelElem)
+function collar_in(tiling :: Dict, g :: PinwheelElem)
     precollar =  precollar_in(tiling , g)
     if !is_interior(precollar, g)
-        throw(Collaring.UnrecognizedCollar)
+        throw(UnrecognizedCollar)
     else
         return precollar
     end

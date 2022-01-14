@@ -46,7 +46,7 @@ patch = Dict([
 @time empirical_frequency(patch, bhp)
 
 
-(collars, S) = Collaring.accessible_subst(bhp_subst(), center_a)
+(collars, S) = .total_collaring(bhp_subst(), center_a)
 
 
-@time Collaring.frequency(bhp_subst(), center_a, patch, 2)
+@time .frequency(bhp_subst(), center_a, patch, 2)

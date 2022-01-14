@@ -5,8 +5,6 @@ export ζ, ϕ, Qζ, hkite, hdart,  penrose, PenroseElem, forced_penrose, conj, g
 using Luxor
 using StructEquality
 
-#import AbstractAlgebra
-
 using ...CoreDefs
 using ...NumFields
 
@@ -34,7 +32,7 @@ function Base.://(x :: Qζ, y :: Qζ)
     return x*alg_conj*norm.denom//norm.coeffs[1]
 end
 
-@def_structequal struct PenroseElem <: EGroupElem
+@def_structequal struct PenroseElem <: DGroupElem
     rot :: Int
     refl :: Bool
     z :: Qζ
@@ -94,7 +92,7 @@ end
 
 function embed_nf(x)
     ζ_float = complex(cos(2*pi/10), sin(2*pi/10))
-    return embed_field(complex ∘ rational_to_float, ζ_float, x)
+    return embed_field(Complex{Float64}, ζ_float, x)
 end
 function embed_nf_p(x)
     z = embed_nf(x)
@@ -129,7 +127,7 @@ function in_interval(x :: Qζ)
     x_float = embed_nf(x)
     return 0 ≤ real(x_float) && real(x_float) ≤ 1 && imag(x_float) ≈ 0
 end
-function CoreDefs.in_border(x, ptile :: PenrosePTile)
+function in_border(x, ptile :: PenrosePTile)
     if ptile == Hkite
         return any([
             in_interval( (x - 1)//(ζ^4 - 1)),

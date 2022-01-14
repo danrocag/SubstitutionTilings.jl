@@ -8,10 +8,9 @@ using Base.Iterators
 QQ = Rational{Int}
 
 using ...CoreDefs
-using ...Collaring
 
 
-@def_structequal struct He <: EGroupElem
+@def_structequal struct He <: DGroupElem
     a::QQ
     b::QQ
     c::QQ
@@ -226,13 +225,13 @@ function bhp_subst()
     return SubSystem(heisenberg_subst, 3//1) 
 end
 
-function Collaring.collar_in(tiling, t ::He)
+function collar_in(tiling, t ::He)
     collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
     collar = Dict([])
     tiling_dict = Dict(tiling)
     for s in collar_shape
         if !haskey(tiling_dict, s)
-            throw(Collaring.UnrecognizedCollar)
+            throw(UnrecognizedCollar)
         end
         collar[s] = tiling_dict[s]
     end
@@ -240,7 +239,7 @@ function Collaring.collar_in(tiling, t ::He)
 end
 
 
-function Collaring.is_interior(tiling :: Dict, t :: He)
+function is_interior(tiling :: Dict, t :: He)
     collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
     return all(g -> haskey(tiling, g), collar_shape)
 end

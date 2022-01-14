@@ -1,49 +1,30 @@
 module CoreDefs
 
-export SubSystem, Tiling, rational_to_float, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, embed_field_elem, GroupElem, EGroupElem, in_border
+export SubSystem, Tiling, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, DGroupElem
 export transition_matrix
+export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
+
 
 using Luxor
-
-import Base: *
+using LinearAlgebra
 
 
 """
-    GroupElem
+    DGroupElem
 
-A subtype of `GroupElem` is the type of elements of some group.
-It should implement the function `id`, `*` and `inv`.
+A subtype of `DGroupElem` is the type of elements of some group
+with a dilation.
+It should implement the functions `id`, `*`, `inv` and `dilate`.
 """
-abstract type GroupElem end
+abstract type DGroupElem end
 
 """
-   EGroupElem
+    dilate(λ, g)
 
-A subtype of `GroupElem is the type of elements of some group which can be embedded in `Aff(2)`.
-Thus, it should additionally implement the function `embed_aff`
+`embed_aff` dilates an group element `g` by the coefficient `λ`.
 """
-abstract type EGroupElem <: GroupElem end
-
-
 function dilate end
-"""
-    embed_aff(g)
 
-`embed_aff` should return the embedding of `g` as an element of `Aff(2)`.
-This should be a vector length `6` with the three columns of the augmented matrix of the transformation, ignoring its last row.
-For example, if `g` should be embedded as a reflection along the x axis followed by a translation by `(1,0)`,
-the output should be `[1., 0., 0., -1., 1., 0.]`.
-This is the format Luxor uses to represent affine transformations.
-"""
-function embed_aff end
-
-"""
-    draw(t :: T, s :: Symbol)
-
-`T` should be a type of prototiles and `s` should be an action Luxor recognizes when drawing shapes (such as `:fill` or `:stroke`).
-`draw(t,s)` should then draw some geometric primitives in a Luxor context using the action `s`.
-"""
-function draw end
 
 """
     id(g)
@@ -53,17 +34,16 @@ Returns the identity element of the group `g` belongs to.
 """
 function id end
 
-
-function Base.:*(g :: G, x :: Pair) where {G<:GroupElem}
+function Base.:*(g :: G, x :: Pair) where {G<:DGroupElem}
     return g*x[1] => x[2]
 end
-function Base.:*(g :: G, X :: AbstractVector) where {G<:GroupElem}
+function Base.:*(g :: G, X :: AbstractVector) where {G<:DGroupElem}
     return map(x -> g*x, X)
 end
-function Base.:*(g :: G, X :: AbstractSet) where {G<:GroupElem}
+function Base.:*(g :: G, X :: AbstractSet) where {G<:DGroupElem}
     return map(x -> g*x, X)
 end
-function Base.:*(g :: G, X :: AbstractDict) where {G<:GroupElem}
+function Base.:*(g :: G, X :: AbstractDict) where {G<:DGroupElem}
     return typeof(X)(g*x for x in X)
 end
 
@@ -77,14 +57,38 @@ function dilate(λ, X :: AbstractSet)
     return map(x -> dilate(λ,x), X)
 end
 
-"""
-    draw(t, sc, hue, action)
 
 
-`t` should be a tile: that is, a Pair consisting of some euclidean group element and some prototile.
-`draw` draws the tile with the set scale, hue and Luxor action.
 """
-function draw(t :: Pair{<:EGroupElem, T}, sc, hue, action :: Symbol) where T
+    embed_aff(g)
+
+`embed_aff` should return the embedding of `g` as an element of `Aff(2)`.
+This should be a vector length `6` with the three columns of the augmented matrix of the transformation, ignoring its last row.
+For example, if `g` should be embedded as a reflection along the x axis followed by a translation by `(1,0)`,
+the output should be `[1., 0., 0., -1., 1., 0.]`.
+This is the format Luxor uses to represent affine transformations.
+"""
+function embed_aff end
+
+"""
+    draw(t :: T, action :: Symbol)
+
+`T` should be a type of prototiles and `s` should be an action Luxor recognizes when drawing shapes (such as `:fill` or `:stroke`).
+`draw(t,s)` should then draw some geometric primitives in a Luxor context using the action `s`.
+"""
+function draw end
+
+
+"""
+    draw(t :: Pair{<:DGroupElem, T}, sc, hue, action)
+
+
+If `t` is a tile, `draw(t, sc, hue, action)` draws it using
+`draw(t[1], action)` after applying the transformation `embed_aff(t[2])`
+with scale `sc`, hue `hue` and action p `action`.
+
+"""
+function draw(t :: Pair{<:DGroupElem, T}, sc, hue, action :: Symbol) where T
     origin()
     scale(sc)
     sethue(hue)
@@ -93,16 +97,13 @@ function draw(t :: Pair{<:EGroupElem, T}, sc, hue, action :: Symbol) where T
 end
 
 
-function in_border(x, t :: Pair{EGroupElem, T}) where T
-    return in_border(inv(t[1])*x, t[2])
-end
-
-
 """
-    SubSystem
+    SubSystem{G, D, L}
 
-The description of an inflation system.
-`G` should be a subset of `EGroupElem` and `dilate(λ' :: D, g :: G)` should be implemented.
+The description of a substitution system with coordinates in `G`,
+labels of type `L`
+and dilation coefficients of type `D`.
+`G` should be a subset of `DGroupElem` implementing `dilate(λ :: D, g :: G)`.
 """
 struct SubSystem{G, D, L}
     sub::Dict{L, Vector{Pair{G, L}}}
@@ -111,18 +112,6 @@ end
 VectorTiling{G,L} = AbstractVector{Pair{G, L}}
 DictTiling{G,L} = AbstractDict{G, L}
 
-
-function rational_to_float(x)
-    return Int(numerator(x))/Int(denominator(x))
-end
-function embed_field_elem(map_coeffs, map_gen, x)
-    deg = degree(parent(x))
-    result = map_coeffs(coeff(x, 0))
-    for i in 1:(deg-1)
-        result += map_coeffs(coeff(x, i))*map_gen^i
-    end
-    return result
-end
 
 """
     substitute(S, tiling, n, [in_bounds, window])
@@ -158,8 +147,12 @@ function substitute_df_inner!(S, n, tile, result, in_bounds = nothing, window=no
     end
 end
 
-# set version of the substitute function: use when the substitution rule has overlaps
-function substitute_bf(S, tiling, n=1) where {G, L,D}
+"""
+    substitute_bf(S, tiling,n=1) 
+
+Set version of the substitute function: use when the substitution rule has overlaps
+"""
+function substitute_bf(S, tiling, n=1)
     if n == 0
         return tiling
     else
@@ -179,18 +172,15 @@ function center_patch(patch)
     return centered
 end
 
+
 """
-    empirical_frequency
+    empirical_frequency(patch, tiling)
 
 Computes the empirical relative frequency of `patch` in the `tiling`:
 that is, computes how many translates of `patch` are subsets of `tiling`
 divided by the total amount of tiles in `tiling`.
 """
-
-function empirical_frequency(patch :: AbstractArray, tiling :: Dict)
-    return empirical_frequency((Dict(patch)), tiling)
-end
-function empirical_frequency(patch :: Dict, tiling :: Dict{G, L}) where {G<:GroupElem, L}
+function empirical_frequency(patch :: Dict{G, L}, tiling :: Dict{G, L}) where {G<:DGroupElem, L}
     freq = 0//1
     n = 0
 
@@ -206,6 +196,9 @@ function empirical_frequency(patch :: Dict, tiling :: Dict{G, L}) where {G<:Grou
     end
     freq = freq//n
     return freq
+end
+function empirical_frequency(patch :: AbstractArray, tiling :: Dict)
+    return empirical_frequency((Dict(patch)), tiling)
 end
 function empirical_frequency(patch :: AbstractArray, tiling :: AbstractArray)
     freq = 0//1
@@ -225,42 +218,131 @@ function empirical_frequency(patch :: AbstractArray, tiling :: AbstractArray)
     return freq
 end
 
+"""
+    transition_matrix(S, order)
 
-struct InconclusiveSubsetError <: Exception
-end
-Base.showerror(io::IO, e::InconclusiveSubsetError) = print(io, "The given patch is neither a subset nor incompatible")
-function check_subset(patch, tiling, incompatible)
-    subset = true
-    collision = false
-    for x in patch
-        x_found = false
-        for t in tiling
-            if x == t
-                println("Equal:",x,",",t)
-                x_found = true
-                break
-            end
-            # We check if x and t are incompatible
-            if incompatible(t[1], x[1])
-                println("Incompatible:",x,",",t)
-                return false
-            end
-        end
-        if !x_found
-            subset = false
-        end
-    end
-
-    if subset
-        return true
-    else
-        throw(InconclusiveSubsetError)
-    end
-end
-
+Given a substitution system `S` and a list of labels `order`,
+computes the transition matrix of `S` in that order
+"""
 function transition_matrix(S, order)
     n = length(order)
     return [count(t -> t[2]==order[i],S.sub[order[j]]) for i=1:n, j=1:n ]
+end
+
+
+struct UnrecognizedCollar <: Exception end
+function collar_in end
+function is_interior end
+
+function collar_class(tiling, g)
+    return inv(g)*collar_in(tiling, g)
+end
+
+function center_label(patch)
+    e = id(typeof(collect(keys(patch))[1]))
+    return patch[e]
+end
+function center_tile(patch)
+    e = id(typeof(collect(keys(patch))[1] ))
+    return e => patch[e]
+end
+
+"""
+    total_collaring(S, initial_collar)
+
+Given a (primitive) substitution system `S` and some collar `initial_collar` (centered at the origin),
+construct its total collaring.
+The result is given as a tuple `(collars, Sc)`
+where `collars` is the list of all collars that happen in `S`-legal tilings
+and `Sc` is the corresponding substitution system,
+where the labels are integers constituting indexes in `collars`.
+"""
+function total_collaring(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
+    collars = [initial_collar]
+    visited = 0
+    sub = Dict{Int,Vector{Pair{G, Int}}}([])
+    while length(collars) > visited
+        new_visited = length(collars)
+        for i in (visited+1):length(collars)
+            sub[i] = []
+            patch = substitute(S, collars[i], 1)
+            for t in substitute(S, [center_tile(collars[i])], 1)
+                class = collar_class(patch, t[1])
+                search = findfirst(c -> issetequal(class, c), collars)
+                if !isnothing(search)
+                    push!(sub[i], t[1] => search)
+                else
+                    push!(collars, class)
+                    push!(sub[i], t[1] => length(collars))
+                end
+            end
+        end
+        visited = new_visited
+    end
+    return (collars, SubSystem(sub, S.λ))
+end
+
+"""
+Given a (primitive) substitution system `S`,
+some collar `initial_collar` and some patch `patch` (both centered at the origin) and some depth `depth`
+calculates the frequency of `patch` in `S`.
+`initial_collar` is used to construct a total collaring and doesn't matter as long as it's a legal collar.
+`depth` determines how the level at which the frequency is calculated:
+the result is only exact if `depth` is high enough, but lower values result in faster computation.
+
+"""
+function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where {G, D, L}
+    (collars, Sc) = total_collaring(S, initial_collar)
+    n = length(collars)
+    A_tr = transition_matrix(Sc, 1:n)
+    (eigenvalues, eigenvectors) = eigen(A_tr)
+    λ_PF = eigenvalues[n]
+    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
+
+    ptiles = unique([collar[id(G)] for collar in collars])
+    collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
+    for i = 1:n
+        push!(collars_of_ptile[collars[i][id(G)]], i)
+    end
+
+
+    patch_c = Dict([])
+    for (g,l) in patch
+        if is_interior(patch, g)
+            patch_c[g] = (:interior, l)
+        else
+            patch_c[g] = (:exterior, collars_of_ptile[l])
+        end
+    end
+
+
+    freq = 0.0
+    for label in 1:n
+        domain = substitute(Sc, [id(G) => label], depth-1)
+        forced_uncollared_domain = substitute(S, collars[label], depth-1)
+
+        for tile in domain
+            translated_patch_c = tile[1] * patch_c
+            is_subset = true
+            for (g, (kind, detect)) in translated_patch_c
+                if kind == :interior
+                    if (g => detect) ∉ forced_uncollared_domain
+                        is_subset = false
+                        break
+                    end
+                else
+                    if !any(c -> c ⊆ forced_uncollared_domain, Ref(g).*collars[detect])
+                        is_subset = false
+                        break
+                    end
+                end
+            end
+            if is_subset
+                freq += v_PF[label]/λ_PF^(depth-1)
+            end
+        end
+    end
+    return freq
 end
 
 

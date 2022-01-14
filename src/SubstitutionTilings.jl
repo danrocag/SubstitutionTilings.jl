@@ -7,8 +7,8 @@ include("CoreDefs.jl")
 using .CoreDefs
 include("NumFields.jl")
 using .NumFields
-include("Collaring.jl")
-using .Collaring
+#include("Collaring.jl")
+#using .Collaring
 #include("systems/heisenberg.jl")
 #using .Heisenberg
 include("systems/penrose.jl")
