@@ -14,7 +14,7 @@ QQ = Rational{Int}
 using ...CoreDefs
 
 
-@def_structequal struct He <: EGroupElem
+@def_structequal struct He <: DGroupElem
     a::QQ
     b::QQ
     c::QQ

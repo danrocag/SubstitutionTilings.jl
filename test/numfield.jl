@@ -1,5 +1,9 @@
 using SubstitutionTilings.NumFields
-using StaticArrays
+
+@NumFields.simple_number_field_concrete Qρ  [-36, 0, 8, 0] ρ
+
+
+
 
 @NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
 Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
@@ -11,6 +15,27 @@ end
 # median 749 ns microseconds mutable
 
 @NumFields.simple_number_field_concrete Qζ2 [-1, 1, -1, 1] ζ2
+function Base.show(io::IO, x::Qζ2)
+    result = "("
+    some_shown = false
+    for (i, coeff) in enumerate(x.coeffs)
+        if (coeff != 0)
+            if some_shown
+                result = result*" + "
+            else
+                some_shown = true
+            end
+            result = result*string(coeff)
+            result = result*"ζ2^"
+            result = result*string(i-1)
+        end
+    end
+    result = result*")/"
+    result = result*string(x.denom)
+    print(io, result)
+end
+
+
 Base.promote_rule(::Type{Qζ2}, ::Type{<:Integer}) = Qζ2
 function func_concrete(x)
     return x*x*x*x*x - x*x + x

@@ -8,10 +8,9 @@ using Colors
 using StructEquality
 
 using ...CoreDefs
-using ...Collaring
 
 
-@def_structequal struct ChairElem <: EGroupElem
+@def_structequal struct ChairElem <: DGroupElem
     angle :: Int # should be 0 ≤ i ≤ 3
     x :: Int
     y :: Int
@@ -120,7 +119,7 @@ function adjacent(xs,ys)
     end
     return false
 end
-function Collaring.collar_in(tiling, g)
+function collar_in(tiling, g::ChairElem)
     result = Pair{ChairElem, ChairPTile}[]
     tiling_dict = Dict(tiling)
     squares_g = tiling_dict[g]

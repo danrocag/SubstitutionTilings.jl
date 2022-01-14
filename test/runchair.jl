@@ -20,7 +20,7 @@ tiling_dict = Dict(tiling)
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
     sc = 10
     tiling = substitute(chair_system, [chair(0,0,0)], 8, Chair.in_bounds, (w=80, h=80))
-    collar = substitute(chair_system, Collaring.collar_class(tiling, ChairElem(0,1,1)), 0)
+    collar = substitute(chair_system, .collar_class(tiling, ChairElem(0,1,1)), 0)
 
     setline(0.1)
 
@@ -32,6 +32,6 @@ end 800 800
 
 
 
-Collaring.frequency(chair_system, collar, cross, 4)
+.frequency(chair_system, collar, cross, 4)
 @time sizeof(substitute(chair_system, [chair(0,0,0)], 20, Chair.in_bounds, (w=800, h=800)))
  
