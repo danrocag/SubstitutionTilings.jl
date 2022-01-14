@@ -1,26 +1,41 @@
 module Penrose
 
-export ζ, ϕ, Qζ_20, hkite, hdart,  penrose, PenroseElem, forced_penrose
+export ζ, ϕ, Qζ, hkite, hdart,  penrose, PenroseElem, forced_penrose, conj, galois_gen
 
-using Nemo
 using Luxor
 using StructEquality
-#import AbstractAlgebra
 
 using ...CoreDefs
+using ...NumFields
 
-# We work in the 20th cyclotomic field because it has the real and imaginary components of the 10th root
-Qζ, ζ = CyclotomicField(10, "ζ") 
-L = Qζ
-ϕ = ζ + ζ^9
-function conj(x)
-    return embed_field_elem(a -> a, ζ^-1, x)
+@NumFields.simple_number_field_concrete Qζ [-1, 1, -1, 1] ζ
+
+
+const ϕ = ζ + ζ^9
+const L = Penrose.Qζ
+
+Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
+function conj(x :: Qζ)
+    return embed_field(a -> a, ζ^9, x)
 end
 
-@def_structequal struct PenroseElem <: EGroupElem
+function galois_gen(x :: Qζ)
+    return embed_field(a -> a, ζ^3, x)
+end
+
+function Base.://(x :: Qζ, y :: Qζ)
+    y1 = galois_gen(y)
+    y2 = galois_gen(y1)
+    y3 = galois_gen(y2)
+    alg_conj = y1*y2*y3
+    norm = y*alg_conj
+    return x*alg_conj*norm.denom//norm.coeffs[1]
+end
+
+@def_structequal struct PenroseElem <: DGroupElem
     rot :: Int
     refl :: Bool
-    z :: nf_elem # supposed to be in Qζ
+    z :: Qζ
 end
 
 function Base.:*(g :: PenroseElem, h :: PenroseElem)
@@ -28,31 +43,31 @@ function Base.:*(g :: PenroseElem, h :: PenroseElem)
         return PenroseElem(
             mod(g.rot + h.rot, 10),
             h.refl,
-            g.z + ζ^-g.rot * h.z
+            g.z + ζ^(10-g.rot) * h.z
         )
     else
         return PenroseElem(
             mod(g.rot - h.rot, 10),
             !h.refl,
-            g.z + ζ^-g.rot * conj(h.z)
+            g.z + ζ^(10-g.rot) * conj(h.z)
         )
     end
 end
-function Base.:*(g :: PenroseElem, x :: nf_elem)
+function Base.:*(g :: PenroseElem, x :: Qζ)
     if !g.refl
-        return g.z + ζ^-g.rot * x
+        return g.z + ζ^(10-g.rot) * x
     else
-        return g.z + ζ^-g.rot * conj(x)
+        return g.z + ζ^(10-g.rot) * conj(x)
     end
 end
-function CoreDefs.dilate(λ :: nf_elem, g :: PenroseElem)
+function CoreDefs.dilate(λ :: Qζ, g :: PenroseElem)
     return PenroseElem(g.rot, g.refl, λ*g.z)
 end
-function CoreDefs.id(::PenroseElem)
+function CoreDefs.id(::Type{PenroseElem})
     return PenroseElem(0,0,L(0))
 end
 function Base.inv(p::PenroseElem)
-    return PenroseElem(0,p.refl,L(0))*PenroseElem(-p.rot,0,L(0))*PenroseElem(0,0,-p.z)
+    return PenroseElem(0,p.refl,L(0))*PenroseElem(10-p.rot,0,L(0))*PenroseElem(0,0,-p.z)
 end
 
 
@@ -61,13 +76,13 @@ end
     Hdart=2
 end
 function hkite(r,s,z)
-    return (PenroseElem(r,s,z), Hkite)
+    return PenroseElem(r,s,z) => Hkite
 end
 function hkite()
     return hkite(0,0,L(0))
 end
 function hdart(r,s,z)
-    return (PenroseElem(r,s,z), Hdart)
+    return PenroseElem(r,s,z) => Hdart
 end
 function hdart()
     return hdart(0,0,L(0))
@@ -77,7 +92,7 @@ end
 
 function embed_nf(x)
     ζ_float = complex(cos(2*pi/10), sin(2*pi/10))
-    return embed_field_elem(complex ∘ rational_to_float, ζ_float, x)
+    return embed_field(Complex{Float64}, ζ_float, x)
 end
 function embed_nf_p(x)
     z = embed_nf(x)
@@ -107,27 +122,12 @@ function CoreDefs.draw(ptile::PenrosePTile, action)
         ], close = true, action)
     end
 end
-function CoreDefs.vertices(ptile::PenrosePTile)
-    if ptile == Hkite
-        return [
-            L(1),
-            ζ^4,
-            ζ^6,
-        ]
-    else
-        return [
-            L(0),
-            ζ^2-1,
-            ζ^8-1,
-        ]
-    end
-end
 
-function in_interval(x :: nf_elem)
+function in_interval(x :: Qζ)
     x_float = embed_nf(x)
     return 0 ≤ real(x_float) && real(x_float) ≤ 1 && imag(x_float) ≈ 0
 end
-function CoreDefs.in_border(x, ptile :: PenrosePTile)
+function in_border(x, ptile :: PenrosePTile)
     if ptile == Hkite
         return any([
             in_interval( (x - 1)//(ζ^4 - 1)),
@@ -157,7 +157,7 @@ function penrose()
             hkite(3,1,ζ^6)
         ])
     ])
-    return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, nf_elem, PenrosePTile}
+    return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
 end
 
 function color(x)
@@ -176,7 +176,7 @@ end
 function force(tiling)
     fkite = [
         hkite(0,0,L(0))
-        hkite(9, 1, ζ^-2//ϕ)
+        hkite(9, 1, ζ^8//ϕ)
     ]
 
     fdart = unique([
@@ -186,7 +186,7 @@ function force(tiling)
         PenroseElem(8, 0, ζ)*fkite
     ])
 
-    result = convert(Vector{Tuple{PenroseElem, PenrosePTile}}, [])
+    result = convert(Vector{Pair{PenroseElem, PenrosePTile}}, [])
 
     for tile in tiling
         if tile[2] == Hdart
@@ -203,34 +203,36 @@ function forced_penrose()
         (label, force(penrose().sub[label]) ) for label in [Hkite, Hdart]
     ])
 
-    return SubSystem(forced_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, nf_elem, PenrosePTile}
+    return SubSystem(forced_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
 end
 
-S, t = PolynomialRing(QQ, "t")
-Qψ, ψ = NumberField(t^2+t-1, "ψ")
+@NumFields.simple_number_field_concrete Qψ [1,-1] ψ
+
 function embed_psi(x)
     psi_float = (sqrt(5) - 1)/2
-    return embed_field_elem(rational_to_float, psi_float, x)
+    return embed_field(rational_to_float, psi_float, x)
 end
-# ψ = 1/ϕ, except that ψ is an element of the field Q(ψ) and ϕ is an element of the field Q(ζ_20) 
+# ψ = 1/ϕ, except that ψ is an element of the field Q(ψ) and ϕ is an element of the field Q(ζ_10) 
 
-
-function frequency(patch, depth)
-    freq::nf_elem = Qψ(0)
+function frequency(patch :: AbstractVector, depth)
+    return frequency(Dict(patch), depth)
+end
+function frequency(patch :: AbstractDict, depth)
+    freq = Qψ(0)
     harmonic = Dict([
-        (Hkite, (ψ^(2*depth - 1)) :: nf_elem),
-        (Hdart, (ψ^(2*depth)) :: nf_elem )
+        (Hkite, (ψ^(2*depth - 1))),
+        (Hdart, (ψ^(2*depth)))
     ])
 
-    center_ptile = patch[1][2]
+    center_ptile = patch[id(PenroseElem)]
 
     for label in [Hkite, Hdart]
-        domain = substitute(penrose(), [(PenroseElem(0,0,L(0)), label)], depth-1)
-        forced_domain = unique(substitute(forced_penrose(), ([(PenroseElem(0,0,L(0)), label)]), depth-1))
+        domain = substitute(penrose(), [(PenroseElem(0,0,L(0)) => label)], depth-1)
+        forced_domain = Dict(substitute(forced_penrose(), ([PenroseElem(0,0,L(0)) => label]), depth-1))
         for tile in domain
             if tile[2] == center_ptile
                 translated_patch = tile[1] * patch
-                if all(t -> t in forced_domain, translated_patch)
+                if translated_patch ⊆ forced_domain
                     freq += harmonic[label]
                 end
             end
