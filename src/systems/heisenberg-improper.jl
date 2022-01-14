@@ -1,4 +1,4 @@
-module Heisenberg
+module HeisenbergImproper
 __precompile__(false)
 
 export He, heis, hn, left, right
@@ -14,7 +14,7 @@ QQ = Rational{Int}
 using ...CoreDefs
 
 
-@def_structequal struct He <: EGroupElem
+@def_structequal struct He <: DGroupElem
     a::QQ
     b::QQ
     c::QQ
