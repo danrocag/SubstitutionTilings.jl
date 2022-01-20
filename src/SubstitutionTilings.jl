@@ -1,7 +1,9 @@
 module SubstitutionTilings
 
 
-export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SetTiling, id, vertices, in_border, transition_matrix
+export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SetTiling, id, vertices, in_border, transition_matrix, DGroupElem
+export transition_matrix
+export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
 
 include("CoreDefs.jl")
 using .CoreDefs

@@ -1,7 +1,6 @@
 using SubstitutionTilings
-using SubstitutionTilings.CoreDefs
 using SubstitutionTilings.NumFields
-using SubstitutionTilings.Collaring
+using SubstitutionTilings.CoreDefs
 using StructEquality
 
 
@@ -33,16 +32,16 @@ function CoreDefs.id(::Type{FibElem})
     return FibElem(0)
 end
 
-function is_interior(tiling :: Dict, t :: FibElem)
-    return haskey(tiling, t) && (haskey(tiling, FibElem(t.a-τ)) || haskey(tiling, FibElem(t.a-(1+τ)/2))) && (haskey(tiling, FibElem(t.a+τ)) || haskey(tiling, FibElem(t.a+(1+τ)/2)))
+function CoreDefs.is_interior(tiling :: Dict, t :: FibElem)
+    return haskey(tiling, t) && (haskey(tiling, FibElem(t.a-τ)) || haskey(tiling, FibElem(t.a-(1+τ)//2))) && (haskey(tiling, FibElem(t.a+τ)) || haskey(tiling, FibElem(t.a+(1+τ)//2)))
 end
 
-function collar_in(tiling :: Dict, t :: FibElem)
+function CoreDefs.collar_in(tiling :: Dict, t :: FibElem)
     if !is_interior(tiling, t)
         throw(UnrecognizedCollar)
     end
     collar = Dict{FibElem, FibTile}([])
-    shifts = ([0, -τ, -(1+τ)/2, τ, (1+τ)/2])
+    shifts = ([0, -τ, -(1+τ)//2, τ, (1+τ)//2])
     for shift in shifts
         if haskey(tiling, FibElem(t.a+shift))
             collar[FibElem(t.a+shift)] = tiling[FibElem(t.a+shift)]
@@ -52,12 +51,12 @@ function collar_in(tiling :: Dict, t :: FibElem)
 end
 
 
-fib = SubSystem(Dict(A => [FibElem(Qτ(-1)/2) => A, FibElem(τ/2) => B], B => [FibElem(0) => A]),τ)
+fib = SubSystem(Dict(A => [FibElem(Qτ(-1)//2) => A, FibElem(τ//2) => B], B => [FibElem(0) => A]),τ)
 
 fib_tiling = substitute(fib, Dict([FibElem(0) => A]), 3)
 initial_collar = collar_in(fib_tiling, FibElem(0))
 
-(collars, fib_c) = Collaring.total_collaring(fib, initial_collar)
+(collars, fib_c) = total_collaring(fib, initial_collar)
 
 
-.frequency(fib, initial_collar, collars[4], 4)
+frequency(fib, initial_collar, collars[4], 4)

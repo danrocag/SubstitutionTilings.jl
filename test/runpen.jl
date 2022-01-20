@@ -32,22 +32,39 @@ sc = 80
     draw(first_tile, sc, "black", :stroke)
 end width height
 
-pentagon = (Dict([
+pentagon = (([
     PenroseElem(mod(k+s,10),s,L(1))*PenroseElem(0,0,L(-1)) => Penrose.Hkite
     for k=0:2:10 for s=0:1
 ]));
-p = @time substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=500, h=500));
-@time float(empirical_frequency(pentagon, (Dict(p))))
-t = zeros(200)
-n = zeros(200)
-for i in 1:200
+
+
+# Comparison of Array and Dict operations
+@assert substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)) == Dict(substitute(penrose(), ([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)))
+
+t_dict = zeros(35)
+n_dict = zeros(35)
+for i in 1:35
     p = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=i*2, h=i*2));
     time = @timed empirical_frequency(pentagon, Dict(p))
-    t[i] = time.time
-    n[i] = length(p)
-end
+    t_dict[i] = time.time
+    n_dict[i] = length(p)
+end # essentially linear in the amont of tiles: pretty good!
 
-plot(n,t) # essentially linear in the amont of tiles: pretty good!
+t_arr = zeros(35)
+n_arr = zeros(35)
+for i in 1:35
+    p = substitute(penrose(), ([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=i*2, h=i*2));
+    time = @timed empirical_frequency(pentagon, (p))
+    t_arr[i] = time.time
+    n_arr[i] = length(p)
+end
+plot(n_dict,t_dict)
+plot!(n_arr, t_arr)
+plot((n_dict), (t_dict))
+plot(log.(n_arr), log.(t_arr))
+# Frequency counting with arrays is exponential in the amount of tiles
+# with Dicts it is more like linear
+
 
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ

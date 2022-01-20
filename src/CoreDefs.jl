@@ -1,6 +1,6 @@
 module CoreDefs
 
-export SubSystem, Tiling, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, Tiling, SetTiling, DGroupElem
+export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem
 export transition_matrix
 export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
 
