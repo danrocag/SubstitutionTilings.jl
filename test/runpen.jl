@@ -18,7 +18,7 @@ const L = Penrose.Qζ
 width = 2560*4
 height = 1600*4
 sc = 80
-@draw begin
+@png begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
     tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
@@ -30,7 +30,7 @@ sc = 80
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
     end
     draw(first_tile, sc, "black", :stroke)
-end width height
+end width height "penrose.png"
 
 pentagon = (([
     PenroseElem(mod(k+s,10),s,L(1))*PenroseElem(0,0,L(-1)) => Penrose.Hkite

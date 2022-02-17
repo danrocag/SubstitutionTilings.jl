@@ -14,7 +14,7 @@ using StructEquality
 In order to be able to do frequency computation,
 we need to work in a group with exact equality, so we can't use floats as coordinates.
 We work in our own implementation of the field ``\mathbb{Q}(\tau)`` instead,
-where ``\tau = \frac{1 + \sqrt(5)}{2}``.
+where ``\tau = \frac{1 + \sqrt(5)}{2}``. If you want to define number fields for your purposes, I recommend looking into `Nemo.jl` and `Hecke.jl`.
 
 ```@example 1
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
