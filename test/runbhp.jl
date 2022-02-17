@@ -1,6 +1,5 @@
 using SubstitutionTilings
 using SubstitutionTilings.Nilpotent
-using SubstitutionTilings.Collaring
 
 using Test
 using LinearAlgebra
@@ -43,10 +42,10 @@ patch = Dict([
     a(0,0,0),
     b(0,2,0),
 ])
-@time empirical_frequency(patch, bhp)
+@time float(empirical_frequency(patch, bhp))
 
 
-(collars, S) = .total_collaring(bhp_subst(), center_a)
+(collars, S) = total_collaring(bhp_subst(), center_a)
+# 263 tiles
 
-
-@time .frequency(bhp_subst(), center_a, patch, 2)
+@time frequency(bhp_subst(), center_a, patch, 2)

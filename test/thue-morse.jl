@@ -38,7 +38,7 @@ function collar_in(tiling :: Dict, t :: TM)
     tiling_dict = tiling
     for s in collar_shape
         if !haskey(tiling_dict, s)
-            throw(.UnrecognizedCollar)
+            throw(UnrecognizedCollar)
         end
         push!(collar, (s,tiling_dict[s]))
     end
@@ -49,7 +49,7 @@ thue_morse = SubSystem(Dict(A => [(TM(-1), A), (TM(1),B)], B => [(TM(-1), B), (T
 
 substitute(thue_morse, [(TM(0), A)], 4)
 
-(collars, S) = .total_collaring(thue_morse, [(TM(-2), A), (TM(0), A), (TM(2), B)])
+(collars, S) = total_collaring(thue_morse, [(TM(-2), A), (TM(0), A), (TM(2), B)])
 length(collars)
 A_thue = transition_matrix(S, 1:6)
 (e, V) = eigen(A_thue)

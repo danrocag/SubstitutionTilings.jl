@@ -225,7 +225,7 @@ function bhp_subst()
     return SubSystem(heisenberg_subst, 3//1) 
 end
 
-function collar_in(tiling, t ::He)
+function CoreDefs.collar_in(tiling, t ::He)
     collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
     collar = Dict([])
     tiling_dict = Dict(tiling)
@@ -239,7 +239,7 @@ function collar_in(tiling, t ::He)
 end
 
 
-function is_interior(tiling :: Dict, t :: He)
+function CoreDefs.is_interior(tiling :: Dict, t :: He)
     collar_shape = t*[He(x,y,z) for x=[-2,0,2] for y=[-2,0,2] for z=[-2,0,2]]
     return all(g -> haskey(tiling, g), collar_shape)
 end

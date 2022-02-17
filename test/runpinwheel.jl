@@ -33,8 +33,8 @@ vertex_star = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,1,0,-i)])
 initial_collar = collar_in(Dict(Pinwheel.PinwheelElem(0,0,0,-i-1)*substitute(pinwheel(), [first_tile], 2)), Pinwheel.PinwheelElem(0,0,0,K(0)))
 
 vertex_star_2 = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,2,0,K(0)), wheel(0,2,1,K(0))])
-@time .frequency(pinwheel(), initial_collar, vertex_star,2)
-@time .frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
+@time frequency(pinwheel(), initial_collar, vertex_star,2)
+@time frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
 
 @draw begin
     colors = ["#DD93FC", "#E7977A",]
