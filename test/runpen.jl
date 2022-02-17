@@ -15,9 +15,9 @@ const L = Penrose.Qζ
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
 
-width = 2560*4
-height = 1600*4
-sc = 80
+width = 1280
+height = 800
+sc = 20
 @png begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
@@ -29,7 +29,7 @@ sc = 80
         origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
     end
-    draw(first_tile, sc, "black", :stroke)
+    #draw(first_tile, sc, "black", :stroke)
 end width height "penrose.png"
 
 pentagon = (([
