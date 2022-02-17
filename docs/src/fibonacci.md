@@ -53,7 +53,7 @@ end
 ```
 
 Then the substitution is defined by
-````@example 1
+```@example 1
 fib = SubSystem(Dict(A => [FibElem(Qτ(-1)//2) => A, FibElem(τ//2) => B], B => [FibElem(0) => A]),τ)
 ```
 
@@ -65,7 +65,7 @@ fib_tiling = substitute(fib, Dict([FibElem(0) => A]), 3)
 
 In order to calculate frequencies, we need to be able to know when a tile is interior to a patch and what its collar is:
 
-````
+```@example 1
 function CoreDefs.is_interior(tiling :: Dict, t :: FibElem)
     return haskey(tiling, t) && (haskey(tiling, FibElem(t.a-τ)) || haskey(tiling, FibElem(t.a-(1+τ)//2))) && (haskey(tiling, FibElem(t.a+τ)) || haskey(tiling, FibElem(t.a+(1+τ)//2)))
 end
@@ -89,8 +89,14 @@ The total collaring `SubstitutionTilings.jl` computes has 4 collars:
 ```@example 1
 initial_collar = collar_in(fib_tiling, FibElem(0))
 (collars, fib_c) = total_collaring(fib, initial_collar)
+
+collars
 ```
 
+For example, we'll compute the frequency of the following collar:
+```@example 1
+collars[4]
+```
 
 ```@example 1
 frequency(fib, initial_collar, collars[4], 4)
