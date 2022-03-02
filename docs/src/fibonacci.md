@@ -7,7 +7,6 @@ We do this in the example of the Fibonacci tiling.
 ```@example 1
 using SubstitutionTilings
 using SubstitutionTilings.NumFields
-using SubstitutionTilings.CoreDefs
 using StructEquality
 ```
 
@@ -39,7 +38,7 @@ function Base.:*(x :: FibElem, y :: FibElem)
     return FibElem(x.a + y.a)
 end
 
-function CoreDefs.dilate(λ :: Qτ, x :: FibElem)
+function SubstitutionTilings.dilate(λ :: Qτ, x :: FibElem)
     return FibElem(λ*x.a)
 end
 
@@ -47,7 +46,7 @@ function Base.inv(x :: FibElem)
     return FibElem(-x.a)
 end
 
-function CoreDefs.id(::Type{FibElem})
+function SubstitutionTilings.id(::Type{FibElem})
     return FibElem(0)
 end
 ```
@@ -66,11 +65,11 @@ fib_tiling = substitute(fib, Dict([FibElem(0) => A]), 3)
 In order to calculate frequencies, we need to be able to know when a tile is interior to a patch and what its collar is:
 
 ```@example 1
-function CoreDefs.is_interior(tiling :: Dict, t :: FibElem)
+function SubstitutionTilings.is_interior(tiling :: Dict, t :: FibElem)
     return haskey(tiling, t) && (haskey(tiling, FibElem(t.a-τ)) || haskey(tiling, FibElem(t.a-(1+τ)//2))) && (haskey(tiling, FibElem(t.a+τ)) || haskey(tiling, FibElem(t.a+(1+τ)//2)))
 end
 
-function CoreDefs.collar_in(tiling :: Dict, t :: FibElem)
+function SubstitutionTilings.collar_in(tiling :: Dict, t :: FibElem)
     if !is_interior(tiling, t)
         throw(UnrecognizedCollar)
     end
