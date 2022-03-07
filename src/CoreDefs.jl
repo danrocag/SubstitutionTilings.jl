@@ -89,7 +89,6 @@ with scale `sc`, hue `hue` and action p `action`.
 
 """
 function draw(t :: Pair{<:DGroupElem, T}, sc, hue, action :: Symbol) where T
-    origin()
     scale(sc)
     sethue(hue)
     transform(embed_aff(t[1]))

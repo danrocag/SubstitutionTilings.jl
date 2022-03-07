@@ -8,6 +8,7 @@ We do this in the example of the Fibonacci tiling.
 using SubstitutionTilings
 using SubstitutionTilings.NumFields
 using StructEquality
+using Luxor
 ```
 
 In order to be able to do frequency computation,
@@ -51,6 +52,34 @@ function SubstitutionTilings.id(::Type{FibElem})
 end
 ```
 
+We can draw the tiles as follows:
+
+```@example 1
+function SubstitutionTilings.embed_aff(g :: FibElem)
+    fτ = (1+sqrt(5))/2
+    return [1, 0, 0, 1, embed_field(float,fτ, g.a), 0]
+end
+
+function SubstitutionTilings.draw(ptile::FibTile, action)
+    fτ = (1+sqrt(5))/2
+    if ptile == A
+        return Luxor.poly([
+            Point(-fτ*0.9,-10),
+            Point(-fτ*0.9,10),
+            Point(fτ*0.9,10),
+            Point(fτ*0.9,-10)
+        ], close = true, action)
+    else
+        return Luxor.poly([
+            Point(-0.9,-10),
+            Point(-0.9,10),
+            Point(0.9,10),
+            Point(0.9,-10)
+        ], close = true, action)
+    end
+end
+```
+
 Then the substitution is defined by
 ```@example 1
 fib = SubSystem(Dict(A => [FibElem(Qτ(-1)//2) => A, FibElem(τ//2) => B], B => [FibElem(0) => A]),τ)
@@ -61,6 +90,31 @@ And we can calculate substitutions:
 ```@example 1
 fib_tiling = substitute(fib, Dict([FibElem(0) => A]), 3)
 ```
+
+```@example 1
+function color(tile :: Pair{FibElem,FibTile})
+    return (tile[2] == A) ? 1 : 2
+end
+
+width = 800
+height = 20
+sc = 5
+@png begin
+    colors = ["#DD93FC", "#E7977A"]
+    first_tile = [FibElem(0) => A]
+    tiling = substitute(fib, Dict([FibElem(0) => A]), 16)
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[color(tile)], :fill)
+    end
+end width height
+```
+
+
+
+
 
 In order to calculate frequencies, we need to be able to know when a tile is interior to a patch and what its collar is:
 
@@ -92,9 +146,24 @@ initial_collar = collar_in(fib_tiling, FibElem(0))
 collars
 ```
 
+
 For example, we'll compute the frequency of the following collar:
+
 ```@example 1
-collars[4]
+width = 800
+height = 40
+sc = 20
+@png begin
+    colors = ["#DD93FC", "#E7977A"]
+    first_tile = [FibElem(0) => A]
+    tiling = collars[4]
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[color(tile)], :fill)
+    end
+end width height
 ```
 
 ```@example 1
