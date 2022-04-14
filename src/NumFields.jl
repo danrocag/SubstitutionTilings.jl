@@ -168,9 +168,8 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
             return $(esc(name))(v, 1)
         end
         function ($(esc(name)))(n :: Rational{<:Integer})
-            x = ($(esc(name)))(numerator(n))
-            x.denom = denominator(n)
-            return x
+            n_converted = convert($(esc(T)), numerator(n))
+            return $(esc(name))([i==1 ? n_converted : 0 for i=1:$N], denominator(n))
         end
 
 
@@ -224,6 +223,9 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
         function Base.://(x :: $(esc(name)), y :: Number)
             return ($(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y)))
         end
+        function Base.:/(x :: $(esc(name)), y :: Number)
+            return ($(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y)))
+        end
 
 
 
@@ -234,7 +236,7 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
             for i=1:$N
                 result += map_coeff(x.coeffs[i])*map_gen^(i-1)
             end
-            return result
+            return result/map_coeff(x.denom)
         end
 
     end

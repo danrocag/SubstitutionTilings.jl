@@ -132,7 +132,7 @@ function precollar_in(tiling :: Dict, g :: PinwheelElem)
     return Dict(precollar)
 end
 
-function is_interior(tiling :: Dict, g :: PinwheelElem)
+function CoreDefs.is_interior(tiling :: Dict, g :: PinwheelElem)
     angle_sums = Dict(g => (0,0) for k in keys(vertices(g => tiling[g])))
     for tile in tiling
         for (vertex,angle) in vertices(tile)
@@ -150,7 +150,7 @@ function is_interior(tiling :: Dict, g :: PinwheelElem)
     return true
 end
 
-function collar_in(tiling :: Dict, g :: PinwheelElem)
+function CoreDefs.collar_in(tiling :: Dict, g :: PinwheelElem)
     precollar =  precollar_in(tiling , g)
     if !is_interior(precollar, g)
         throw(UnrecognizedCollar)

@@ -17,26 +17,67 @@ const L = Penrose.Qζ
 
 width = 1280
 height = 800
-sc = 20
-@png begin
+sc = 100
+@draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
-    tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    tiling = substitute(penrose(), [first_tile], 2, Penrose.in_bounds, (w=width/sc, h=height/sc))
     println(typeof(tiling))
     setline(1)
 
     for tile in tiling
         origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        origin()
+        setcolor("black")
+        scale(sc)
+        circle(embed_center(tile[1]), 0.1, :fill)
+        sethue("black")
     end
     #draw(first_tile, sc, "black", :stroke)
-end width height "penrose.png"
+end width height #"penrose.png"
 
 pentagon = (([
     PenroseElem(mod(k+s,10),s,L(1))*PenroseElem(0,0,L(-1)) => Penrose.Hkite
     for k=0:2:10 for s=0:1
 ]));
 
+width = 300
+height = 300
+sc = 50
+@png begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite(0, false, L(0))
+    tiling = pentagon
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+    end
+    origin()
+    setline(1)
+    draw(first_tile, sc, "black", :stroke)
+end width height "pentagon.png"
+
+trapezoid = Dict([
+    hkite(0,0,L(0)),
+    hdart(2,1, ζ^8 )])
+width = 300
+height = 300
+sc = 50
+@png begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite(0, false, L(0))
+    tiling = trapezoid
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+    end
+    origin()
+    setline(1)
+    draw(first_tile, sc, "black", :stroke)
+end width height "trapezoid.png"
 
 # Comparison of Array and Dict operations
 @assert substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)) == Dict(substitute(penrose(), ([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)))
@@ -73,4 +114,3 @@ plot(log.(n_arr), log.(t_arr))
     @test Penrose.frequency(pentagon, 5) == 7*ψ - 4
     @test Penrose.frequency(pentagon, 6) == 7*ψ - 4
 end
-

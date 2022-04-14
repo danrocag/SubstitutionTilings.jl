@@ -1,8 +1,8 @@
 module CoreDefs
 
 export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem
-export transition_matrix
-export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
+export collar_in, is_interior, frequency, total_collaring, UnrecognizedCollar, transition_matrix
+export embed_center
 
 
 using Luxor
@@ -95,6 +95,17 @@ function draw(t :: Pair{<:DGroupElem, T}, sc, hue, action :: Symbol) where T
     draw(t[2], action)
 end
 
+
+"""
+    embed_center(t :: Pair{<:DGroupElem, T})
+
+If `t` is a tile with coordinates that can be embedded in the euclidean plane,
+outputs the center of the tile as a Luxor point
+"""
+
+function embed_center(g :: DGroupElem)
+    return Point(embed_aff(g)[5:6]...)
+end
 
 """
     SubSystem{G, D, L}

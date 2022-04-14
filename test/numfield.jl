@@ -2,9 +2,6 @@ using SubstitutionTilings.NumFields
 
 @NumFields.simple_number_field_concrete Qρ  [-36, 0, 8, 0] ρ
 
-
-
-
 @NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
 Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
 

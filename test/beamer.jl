@@ -24,9 +24,11 @@ sc = 80
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
-    #draw(first_tile, sc, "black", :stroke)
+    origin()
+    setline(10)
+    draw(first_tile, sc, "black", :stroke)
 end width height
-@png begin
+@draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
     tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
@@ -40,8 +42,9 @@ end width height
         draw(tile, sc, "black", :stroke)
     end
     setline(10)
+    origin()
     draw(first_tile, sc, "black", :stroke)
-end width height "canonical1.png"
+end width height# "canonical1.png"
 @png begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
@@ -213,4 +216,68 @@ end width height
         transform(embed_aff(first_tile[1]))
         draw(first_tile[2], :stroke)
     end
+end width height
+
+width = 1000
+height = 1000
+sc = 80
+@draw begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite(0, false, L(0))
+    tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    #tiling  = pentagon
+    println(typeof(tiling))
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        draw(tile, sc, "black", :stroke)
+    end
+    origin()
+    setline(5)
+    draw(first_tile, sc, "black", :stroke)
+end width height
+@draw begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite(0, false, L(0))
+    tiling = substitute(penrose(), [first_tile], 11, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    #tiling  = pentagon
+    println(typeof(tiling))
+    setline(1)
+
+    for tile in substitute(penrose(), tiling, 1)
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        draw(tile, sc, "black", :stroke)
+    end
+    origin()
+    setline(5)
+    draw(collect(tiling)[80], sc*1.618, "black", :stroke)
+    origin()
+    setline(1)
+    draw(first_tile, sc, "black", :stroke)
+end width height
+@draw begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite(0, false, L(0))
+    preimg = substitute(penrose(), [first_tile], 7)
+    tiling = substitute(penrose(), preimg, 1)
+    g = inv(collect(tiling)[49][1])
+    tiling = g*tiling
+    preimg = dilate(ϕ, g)*preimg
+    preimg_tile = collect(preimg)[600]
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        draw(tile, sc, "black", :stroke)
+    end
+    origin()
+    setline(1)
+    draw(first_tile, sc, "black", :stroke)
+    origin()
+    setline(5)
+    draw(preimg_tile, sc*1.618, "black", :stroke)
 end width height

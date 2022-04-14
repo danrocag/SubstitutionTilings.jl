@@ -9,12 +9,11 @@ using ...CoreDefs
 using ...NumFields
 
 @NumFields.simple_number_field_concrete Qζ [-1, 1, -1, 1] ζ
-
+promote_rule(::Type{Qζ}, ::Type{Rational{Int64}}) = Qζ
 
 const ϕ = ζ + ζ^9
-const L = Penrose.Qζ
+const L = Qζ
 
-Base.promote_rule(::Type{Qζ}, ::Type{<:Integer}) = Qζ
 function conj(x :: Qζ)
     return embed_field(a -> a, ζ^9, x)
 end
@@ -116,9 +115,9 @@ function CoreDefs.draw(ptile::PenrosePTile, action)
         ], close = true, action)
     else
         Luxor.poly([
-            embed_nf_p(L(0)),
-            embed_nf_p(L(ζ^2-1)),
-            embed_nf_p(L(ζ^8-1))
+            embed_nf_p(L(1//2)),
+            embed_nf_p(L(ζ^2-ζ^0//2)),
+            embed_nf_p(L(ζ^8-ζ^0//2))
         ], close = true, action)
     end
 end
@@ -136,9 +135,9 @@ function in_border(x, ptile :: PenrosePTile)
         ])
     else
         return any([
-            in_interval( (x - 0)//(ζ^2 - 1)),
-            in_interval( (x - ζ^2 + 1)//(ζ^8 - ζ^2)),
-            in_interval( (x - ζ^8 + 1)//(1 - ζ^8)),
+            in_interval( (x - 1//2)//(ζ^2 - 1)),
+            in_interval( (x - ζ^2 + 1//2)//(ζ^8 - ζ^2)),
+            in_interval( (x - ζ^8 + 1//2)//(1 - ζ^8)),
         ])
     end
 end
@@ -150,11 +149,11 @@ function penrose()
         (Hkite, [
             hkite(7, 0, ζ^6+ζ^3//ϕ),
             hkite(6, 1, ζ^4+ζ^9//ϕ^2),
-            hdart(7, 0, ζ//ϕ),
+            hdart(7, 0, ζ//ϕ-ζ^3//2),
             ]),
         (Hdart, [
-            hdart(4,0, ζ^4+ζ^6//ϕ^2),
-            hkite(3,1,ζ^6)
+            hdart(4,0, ζ^4+ζ^6//ϕ^2+ζ^1-ζ^4//2),
+            hkite(3,1,ζ^6-ζ^5-ζ^0//ϕ^2//2)
         ])
     ])
     return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
