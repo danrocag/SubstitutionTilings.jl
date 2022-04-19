@@ -17,11 +17,11 @@ const L = Penrose.Qζ
 
 width = 1280
 height = 800
-sc = 100
+sc = 80
 @draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
-    tiling = substitute(penrose(), [first_tile], 2, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    tiling = substitute(penrose(), [first_tile], 20, Penrose.in_bounds, (w=width/sc, h=height/sc))
     println(typeof(tiling))
     setline(1)
 
@@ -34,7 +34,9 @@ sc = 100
         circle(embed_center(tile[1]), 0.1, :fill)
         sethue("black")
     end
-    #draw(first_tile, sc, "black", :stroke)
+    origin()
+    setline(1)
+    draw(first_tile, sc, "black", :stroke)
 end width height #"penrose.png"
 
 pentagon = (([
@@ -61,7 +63,7 @@ end width height "pentagon.png"
 
 trapezoid = Dict([
     hkite(0,0,L(0)),
-    hdart(2,1, ζ^8 )])
+    hdart(2,1, ζ^8//ϕ )])
 width = 300
 height = 300
 sc = 50
@@ -106,7 +108,10 @@ plot(log.(n_arr), log.(t_arr))
 # Frequency counting with arrays is exponential in the amount of tiles
 # with Dicts it is more like linear
 
+tiling = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50))
+empirical_frequency(pentagon, tiling)
 
+Penrose.frequency(pentagon, 4)
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ
     @test Penrose.frequency([hdart()], 4) == 1-ψ

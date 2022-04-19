@@ -115,9 +115,9 @@ function CoreDefs.draw(ptile::PenrosePTile, action)
         ], close = true, action)
     else
         Luxor.poly([
-            embed_nf_p(L(1//2)),
-            embed_nf_p(L(ζ^2-ζ^0//2)),
-            embed_nf_p(L(ζ^8-ζ^0//2))
+            embed_nf_p(L(1-ζ^0//ϕ)),
+            embed_nf_p(L(ζ^2-ζ^0//ϕ)),
+            embed_nf_p(L(ζ^8-ζ^0//ϕ))
         ], close = true, action)
     end
 end
@@ -134,10 +134,10 @@ function in_border(x, ptile :: PenrosePTile)
             in_interval( (x - ζ^6)//(1 - ζ^6)),
         ])
     else
-        return any([
-            in_interval( (x - 1//2)//(ζ^2 - 1)),
-            in_interval( (x - ζ^2 + 1//2)//(ζ^8 - ζ^2)),
-            in_interval( (x - ζ^8 + 1//2)//(1 - ζ^8)),
+        return any([ # TODO fix!
+            in_interval( (x - 1+ζ^0//ϕ)//(ζ^2 - 1)),
+            in_interval( (x - ζ^2+ζ^0//ϕ)//(ζ^8 - ζ^2)),
+            in_interval( (x - ζ^8+ζ^0//ϕ)//(1 - ζ^8)),
         ])
     end
 end
@@ -149,11 +149,11 @@ function penrose()
         (Hkite, [
             hkite(7, 0, ζ^6+ζ^3//ϕ),
             hkite(6, 1, ζ^4+ζ^9//ϕ^2),
-            hdart(7, 0, ζ//ϕ-ζ^3//2),
+            hdart(7, 0, ζ//ϕ+ζ^8//ϕ^2),
             ]),
         (Hdart, [
-            hdart(4,0, ζ^4+ζ^6//ϕ^2+ζ^1-ζ^4//2),
-            hkite(3,1,ζ^6-ζ^5-ζ^0//ϕ^2//2)
+            hdart(4,0, ζ^3//ϕ),
+            hkite(3,1,ζ^6-ζ^5-ζ^0//ϕ^2)
         ])
     ])
     return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
