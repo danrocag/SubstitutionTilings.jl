@@ -10,7 +10,7 @@ using Luxor
 const L = Penrose.Qζ
 
 
-
+setantialias(6)
 
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
@@ -31,11 +31,42 @@ sc = 200
         origin()
         setcolor("black")
         scale(sc)
-        circle(embed_center(tile[1]), 0.1, :fill)
+        #circle(embed_center(tile[1]), 0.1, :fill)
         sethue("black")
     end
     origin()
     setline(1)
+    #draw(first_tile, sc/0.618, "black", :stroke)
+end width height #"penrose.png"
+
+width = 1280*2
+height = 800*2
+sc = 400
+@draw begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    first_tile = hkite()
+    tiling = substitute(penrose(), [first_tile], 1, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    println(typeof(tiling))
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        origin()
+        setcolor("black")
+        scale(sc)
+        #circle(embed_center(tile[1]), 0.1, :fill)
+        sethue("black")
+    end
+    origin()
+    scale(sc)
+    setline(2)
+    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*L(1)), :stroke)
+    Luxor.arrow(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^4+(ϕ*L(1)-ϕ*ζ^4)//2), arrowheadlength=0.1)
+    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^6),Penrose.embed_nf_p(ϕ*L(1)), :stroke)
+    Luxor.arrow(Penrose.embed_nf_p(ϕ*L(1)),Penrose.embed_nf_p(ϕ*ζ^6+(ϕ*L(1)-ϕ*ζ^6)//2), arrowheadlength=0.1)
+    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^6), :stroke)
+    Luxor.arrow(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^4+(ϕ*ζ^6-ϕ*ζ^4)//2), arrowheadlength=0.1)
     #draw(first_tile, sc/0.618, "black", :stroke)
 end width height #"penrose.png"
 
