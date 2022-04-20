@@ -147,13 +147,13 @@ function penrose()
     # This is a function only so that Revise works
     pen_subst = Dict([
         (Hkite, [
-            hkite(7, 0, ζ^6+ζ^3//ϕ),
-            hkite(6, 1, ζ^4+ζ^9//ϕ^2),
-            hdart(7, 0, ζ//ϕ+ζ^8//ϕ^2),
+            hkite(7, 0, ϕ*ζ^4-ζ^3),
+            hkite(6, 1, ζ^4//ϕ),
+            hdart(7, 0, ζ^4//ϕ+1+(1-ζ^0//ϕ)*ζ^8),
             ]),
         (Hdart, [
-            hdart(4,0, ζ^3//ϕ),
-            hkite(3,1,ζ^6-ζ^5-ζ^0//ϕ^2)
+            hdart(4,0, ϕ*ζ^8-ζ^0+ζ+ζ^2+(ζ^8-ζ^0//ϕ)*ζ^7),
+            hkite(3,1,ϕ*ζ^8-ζ^0+ζ^2)
         ])
     ])
     return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
