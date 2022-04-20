@@ -44,30 +44,67 @@ height = 800*2
 sc = 400
 @draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
-    first_tile = hkite()
-    tiling = substitute(penrose(), [first_tile], 1, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    println(typeof(tiling))
-    setline(1)
 
-    for tile in tiling
+    quadrants = Tiler(width, height, 1, 2, margin=5)
+
+    begin
+        pos = quadrants[1][1]
+        first_tile = hkite()
+        tiling = substitute(penrose(), [first_tile], 0, Penrose.in_bounds, (w=width/sc, h=height/sc))
+        println(typeof(tiling))
+        setline(1)
+    
+        for tile in tiling
+            origin()
+            Luxor.translate(pos)
+            draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        end
         origin()
-        draw(tile, sc, colors[Penrose.color(tile)], :fill)
-        origin()
-        setcolor("black")
+        Luxor.translate(pos)
         scale(sc)
-        #circle(embed_center(tile[1]), 0.1, :fill)
-        sethue("black")
+        setline(2)
+        setcolor("black")
+        Luxor.line(Penrose.embed_nf_p(ζ^4),Penrose.embed_nf_p(L(1)), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^4),Penrose.embed_nf_p(ζ^4+(L(1)-ζ^4)*(7//16)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^4),Penrose.embed_nf_p(ζ^4+(L(1)-ζ^4)*(9//16)), arrowheadlength=0.1)
+        Luxor.line(Penrose.embed_nf_p(ζ^6),Penrose.embed_nf_p(L(1)), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(L(1)),Penrose.embed_nf_p(ζ^6+(L(1)-ζ^6)//2), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(L(1)),Penrose.embed_nf_p(ζ^6+(L(1)-ζ^6)*(3//8)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(L(1)),Penrose.embed_nf_p(ζ^6+(L(1)-ζ^6)*(5//8)), arrowheadlength=0.1)
+        Luxor.line(Penrose.embed_nf_p(ζ^4),Penrose.embed_nf_p(ζ^6), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^6),Penrose.embed_nf_p(ζ^4+(ζ^6-ζ^4)*(1//2)), arrowheadlength=0.1)
     end
-    origin()
-    scale(sc)
-    setline(2)
-    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*L(1)), :stroke)
-    Luxor.arrow(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^4+(ϕ*L(1)-ϕ*ζ^4)//2), arrowheadlength=0.1)
-    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^6),Penrose.embed_nf_p(ϕ*L(1)), :stroke)
-    Luxor.arrow(Penrose.embed_nf_p(ϕ*L(1)),Penrose.embed_nf_p(ϕ*ζ^6+(ϕ*L(1)-ϕ*ζ^6)//2), arrowheadlength=0.1)
-    Luxor.line(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^6), :stroke)
-    Luxor.arrow(Penrose.embed_nf_p(ϕ*ζ^4),Penrose.embed_nf_p(ϕ*ζ^4+(ϕ*ζ^6-ϕ*ζ^4)//2), arrowheadlength=0.1)
-    #draw(first_tile, sc/0.618, "black", :stroke)
+    
+    begin
+        pos = quadrants[2][1]
+        first_tile = hdart()
+        tiling = substitute(penrose(), [first_tile], 0, Penrose.in_bounds, (w=width/sc, h=height/sc))
+        println(typeof(tiling))
+        setline(1)
+    
+        for tile in tiling
+            origin()
+            Luxor.translate(pos)
+            draw(tile, sc, colors[Penrose.color(tile)], :fill)
+        end
+        origin()
+        Luxor.translate(pos)
+        scale(sc)
+        setline(2)
+        setcolor("black")
+        Luxor.line(Penrose.embed_nf_p(ζ^2-ζ^0//ϕ),Penrose.embed_nf_p(L(1-ζ^0//ϕ)), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^2-ζ^0//ϕ),Penrose.embed_nf_p(ζ^2-ζ^0//ϕ+(L(1-ζ^0//ϕ)-(ζ^2-ζ^0//ϕ))//2), arrowheadlength=0.1)
+        Luxor.line(Penrose.embed_nf_p(L(1-ζ^0//ϕ)),Penrose.embed_nf_p(ζ^8-ζ^0//ϕ), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(L(1-ζ^0//ϕ)),Penrose.embed_nf_p(1-ζ^0//ϕ+((ζ^8-ζ^0//ϕ)-(1-ζ^0//ϕ))*(3//16)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(L(1-ζ^0//ϕ)),Penrose.embed_nf_p(1-ζ^0//ϕ+((ζ^8-ζ^0//ϕ)-(1-ζ^0//ϕ))*(5//16)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(L(1-ζ^0//ϕ)),Penrose.embed_nf_p(1-ζ^0//ϕ+((ζ^8-ζ^0//ϕ)-(1-ζ^0//ϕ))*(7//16)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(L(1-ζ^0//ϕ)),Penrose.embed_nf_p(1-ζ^0//ϕ+((ζ^8-ζ^0//ϕ)-(1-ζ^0//ϕ))*(9//16)), arrowheadlength=0.1)
+        Luxor.line(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^2-ζ^0//ϕ), :stroke)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^8-ζ^0//ϕ-(ζ^8-ζ^2)*(7//16)), arrowheadlength=0.1)
+        Luxor.arrow(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^8-ζ^0//ϕ-(ζ^8-ζ^2)*(9//16)), arrowheadlength=0.1)
+
+
+   end
 end width height #"penrose.png"
 
 pentagon = (([
