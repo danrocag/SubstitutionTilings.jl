@@ -5,6 +5,7 @@ export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SubSyst
 export transition_matrix
 export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
 export embed_center
+export autocorrelation
 
 include("CoreDefs.jl")
 using .CoreDefs

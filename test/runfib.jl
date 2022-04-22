@@ -4,6 +4,7 @@ using SubstitutionTilings
 using SubstitutionTilings.NumFields
 using StructEquality
 using Luxor
+using Plots
 
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
@@ -33,9 +34,13 @@ function SubstitutionTilings.id(::Type{FibElem})
     return FibElem(0)
 end
 
-function SubstitutionTilings.embed_aff(g :: FibElem)
+function embed_float(g :: FibElem)
     fτ = (1+sqrt(5))/2
-    return [1, 0, 0, 1, embed_field(float,fτ, g.a), 0]
+    return embed_field(float,fτ, g.a)
+end
+
+function SubstitutionTilings.embed_aff(g :: FibElem)
+    return [1, 0, 0, 1, embed_float(g), 0]
 end
 
 function SubstitutionTilings.draw(ptile::FibTile, action)
@@ -129,3 +134,13 @@ sc = 20
 end width height
 
 frequency(fib, initial_collar, collars[4], 4)
+nu = autocorrelation(fib, initial_collar, 9)
+xs = Vector{Float64}()
+ys = Vector{Float64}()
+for delta in nu
+    if abs(embed_float(delta[1])) < 10
+        push!(xs, embed_float(delta[1]))
+        push!(ys, delta[2])
+    end
+end
+plot(xs, ys, seriestype = :scatter, ylims = (0,1.1))

@@ -3,6 +3,7 @@ module CoreDefs
 export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem
 export collar_in, is_interior, frequency, total_collaring, UnrecognizedCollar, transition_matrix
 export embed_center
+export autocorrelation
 
 
 using Luxor
@@ -355,5 +356,39 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
     return freq
 end
 
+# Radius should be forces by the chosen prototile depth!
+function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth) where {G, D, L}
+    (collars, Sc) = total_collaring(S, initial_collar)
+    n = length(collars)
+    A_tr = transition_matrix(Sc, 1:n)
+    (eigenvalues, eigenvectors) = eigen(A_tr)
+    λ_PF = eigenvalues[n]
+    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
+
+    ptiles = unique([collar[id(G)] for collar in collars])
+    collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
+    for i = 1:n
+        push!(collars_of_ptile[collars[i][id(G)]], i)
+    end
+
+    measure = Dict{G, Float64}()
+    for label in 1:n
+        domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+        forced_domain = substitute(S, collars[label], depth-1)
+
+        for tile in domain
+            translated_f_domain = inv(tile[1]) * forced_domain
+            for t in translated_f_domain
+                g = t[1]
+                if g in keys(measure)
+                    measure[g] += v_PF[label]/λ_PF^(depth-1)
+                else
+                    measure[g] = v_PF[label]/λ_PF^(depth-1)
+                end
+            end
+        end
+    end
+    return measure
+end
 
 end
