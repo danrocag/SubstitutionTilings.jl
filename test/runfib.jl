@@ -134,13 +134,36 @@ sc = 20
 end width height
 
 frequency(fib, initial_collar, collars[4], 4)
-nu = autocorrelation(fib, initial_collar, 9)
+nu = autocorrelation(fib, initial_collar, 15)
 xs = Vector{Float64}()
 ys = Vector{Float64}()
 for delta in nu
-    if abs(embed_float(delta[1])) < 10
+    if abs(embed_float(delta[1])) < 800
         push!(xs, embed_float(delta[1]))
         push!(ys, delta[2])
     end
 end
-plot(xs, ys, seriestype = :scatter, ylims = (0,1.1))
+plot(xs, ys, seriestype = :scatter)
+
+
+function test(x,R)
+    return exp(- pi * abs(x)^2/R^2)
+end
+
+nu = autocorrelation(fib, initial_collar, 15)
+
+variances = Vector{Float64}()
+Rs = 1:800
+for R=Rs
+    R = R
+    k = R
+    val = 0.0
+    for delta in nu
+        if abs(embed_float(delta[1])) < 1000
+            val += delta[2]*test(embed_float(delta[1]), R)
+        end
+    end
+    push!(variances, val)
+end
+variances/0.72-Rs
+plot(variances/0.7222-Rs)
