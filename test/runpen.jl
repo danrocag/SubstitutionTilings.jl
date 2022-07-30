@@ -15,7 +15,7 @@ setantialias(6)
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
 
-width = 1280
+width = 800
 height = 800
 sc = 200
 @draw begin
@@ -102,8 +102,6 @@ sc = 400
         Luxor.line(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^2-ζ^0//ϕ), :stroke)
         Luxor.arrow(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^8-ζ^0//ϕ-(ζ^8-ζ^2)*(7//16)), arrowheadlength=0.1)
         Luxor.arrow(Penrose.embed_nf_p(ζ^8-ζ^0//ϕ),Penrose.embed_nf_p(ζ^8-ζ^0//ϕ-(ζ^8-ζ^2)*(9//16)), arrowheadlength=0.1)
-
-
    end
 end width height #"penrose.png"
 

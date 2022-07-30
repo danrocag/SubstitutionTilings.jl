@@ -169,6 +169,11 @@ function in_bounds(tile, n, window)
     center = embed_nf(tile[1].z)
     return abs(real(center))*phi^(n+1) < window.w + 3/2*phi^(n+1) && abs(imag(center))*phi^(n+1) < window.h + 3/2*phi^(n+1)
 end
+function in_bounds_strict(tile, window)
+    phi = (1 + sqrt(5))/2
+    center = embed_nf(tile[1].z)
+    return abs(real(center)) <= window.w/2 && abs(imag(center)) <= window.h/2
+end
 
 
 
