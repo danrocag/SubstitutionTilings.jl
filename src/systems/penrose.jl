@@ -115,9 +115,9 @@ function CoreDefs.draw(ptile::PenrosePTile, action)
         ], close = true, action)
     else
         Luxor.poly([
-            embed_nf_p(L(1-ζ^0//ϕ)),
-            embed_nf_p(L(ζ^2-ζ^0//ϕ)),
-            embed_nf_p(L(ζ^8-ζ^0//ϕ))
+            embed_nf_p(L(0)),
+            embed_nf_p(L(ζ^2-1)),
+            embed_nf_p(L(ζ^8-1))
         ], close = true, action)
     end
 end
@@ -135,9 +135,9 @@ function in_border(x, ptile :: PenrosePTile)
         ])
     else
         return any([ # TODO fix!
-            in_interval( (x - 1+ζ^0//ϕ)//(ζ^2 - 1)),
-            in_interval( (x - ζ^2+ζ^0//ϕ)//(ζ^8 - ζ^2)),
-            in_interval( (x - ζ^8+ζ^0//ϕ)//(1 - ζ^8)),
+        in_interval( (x - 0)//(ζ^2 - 1)),
+        in_interval( (x - ζ^2 + 1)//(ζ^8 - ζ^2)),
+        in_interval( (x - ζ^8 + 1)//(1 - ζ^8)),
         ])
     end
 end
@@ -147,13 +147,13 @@ function penrose()
     # This is a function only so that Revise works
     pen_subst = Dict([
         (Hkite, [
-            hkite(7, 0, ϕ*ζ^4-ζ^3),
-            hkite(6, 1, ζ^4//ϕ),
-            hdart(7, 0, ζ^4//ϕ+1+(1-ζ^0//ϕ)*ζ^8),
+            hkite(7, 0, ζ^6+ζ^3//ϕ),
+            hkite(6, 1, ζ^4+ζ^9//ϕ^2),
+            hdart(7, 0, ζ//ϕ),
             ]),
         (Hdart, [
-            hdart(4,0, ϕ*ζ^8-ζ^0+ζ+ζ^2+(ζ^8-ζ^0//ϕ)*ζ^7),
-            hkite(3,1,ϕ*ζ^8-ζ^0+ζ^2)
+            hdart(4,0, ζ^4+ζ^6//ϕ^2),
+            hkite(3,1,ζ^6)
         ])
     ])
     return SubSystem(pen_subst, ϕ) :: CoreDefs.SubSystem{PenroseElem, Qζ, PenrosePTile}
