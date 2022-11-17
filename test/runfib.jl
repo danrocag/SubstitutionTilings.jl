@@ -5,6 +5,7 @@ using SubstitutionTilings.NumFields
 using StructEquality
 using Luxor
 using Plots
+using Statistics
 
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
@@ -133,37 +134,38 @@ sc = 20
     end
 end width height
 
+norm = sqrt(1 + phi^2)
 frequency(fib, initial_collar, collars[4], 4)
-nu = autocorrelation(fib, initial_collar, 15)
+nu = autocorrelation(fib, initial_collar, 19)
 xs = Vector{Float64}()
 ys = Vector{Float64}()
 for delta in nu
-    if abs(embed_float(delta[1])) < 800
+    if abs(embed_float(delta[1])) < 6000
         push!(xs, embed_float(delta[1]))
         push!(ys, delta[2])
     end
 end
 plot(xs, ys, seriestype = :scatter)
 
-
-function test(x,R)
-    return exp(- pi * abs(x)^2/R^2)
-end
-
-nu = autocorrelation(fib, initial_collar, 15)
-
-variances = Vector{Float64}()
-Rs = 1:800
+moments = Vector{Float64}()
+Rs = 1:6000
 for R=Rs
     R = R
     k = R
     val = 0.0
     for delta in nu
-        if abs(embed_float(delta[1])) < 1000
-            val += delta[2]*test(embed_float(delta[1]), R)
+        if abs(embed_float(delta[1])) < R
+            val += delta[2]
         end
     end
-    push!(variances, val)
+    push!(moments, val)
 end
-variances/0.72-Rs
-plot(variances/0.7222-Rs)
+
+plot(moments)
+C = mean((moments./Rs)[5000:6000])
+phi = (1 + sqrt(5))/2
+covol = (1/phi+1/phi^3)
+variances = moments -C.*Rs
+plot(variances)
+plot(variances./Rs)
+plot(log.(abs.(variances))./log.(Rs))
