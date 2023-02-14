@@ -7,9 +7,7 @@ using Plots
 using Bessels
 using LinearAlgebra
 
-
-K = Pinwheel.K
-Pinwheel.embed_float(wheel(0,0,0,i))
+Qθ = Pinwheel.Qθ
 
 selfsimilar = wheel(0,0,0,(-1-i)//4)
 selfsimilar in substitute(pinwheel(), [selfsimilar], 2)
@@ -61,11 +59,11 @@ sc = 100
     end
 end width height "pinwheel-subst.png"
 
-vertex_star = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,1,0,-i)])
+vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
 substitute(pinwheel(), [wheel()], 3)
 initial_collar = inv(selfsimilar[1])*collar_in(Dict(substitute(pinwheel(), [selfsimilar], 2)), selfsimilar[1])
 
-vertex_star_2 = Dict([wheel(), wheel(0,0,1,K(0)), wheel(0,2,0,K(0)), wheel(0,2,1,K(0))])
+vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0,2,1,Qθ(0))])
 @time frequency(pinwheel(), initial_collar, vertex_star,2)
 @time frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
 
@@ -101,7 +99,8 @@ end w h "vertex_star_1.png"
     #draw(first_tile, sc, "black", :stroke)
 end w h "vertex_star_2.png"
 
-@time nu = autocorrelation(pinwheel(), initial_collar, 5)
+# 3rd iteration in 45 seconds
+@time nu = autocorrelation(pinwheel(), initial_collar, 3)
 
 rs = Vector{Float64}()
 freqs = Vector{Float64}()
@@ -109,9 +108,11 @@ for (i,j) in nu
     push!(rs,norm(Pinwheel.embed_float(i)))
     push!(freqs,j)
 end
-xs = 0.2:0.01:10
+xs = 0.1:0.01:10
 ys = zeros(length(xs))
 for (i,j) in nu
     ys +=j*besselj0.(2*pi*2/sqrt(5)*norm(Pinwheel.embed_float(i))*xs)
+end
+for i=1:length(xs)
 end
 plot(xs,ys,ticks=0:0.5:10)

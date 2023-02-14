@@ -1,9 +1,7 @@
 module HeisenbergImproper
-__precompile__(false)
 
 export He, heis, hn, left, right
 
-using Nemo
 using Luxor
 import Luxor.transform
 using Colors

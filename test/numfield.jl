@@ -1,5 +1,30 @@
 using SubstitutionTilings.NumFields
 
+@NumFields.simple_number_field_concrete Qθ [-36,0,8,0] θ
+Base.promote_rule(::Type{Qθ}, ::Type{<:Integer}) = Qθ
+
+i = (θ^3-2θ)/12
+sq5 = θ-iθ
+
+function conj(x :: Qθ)
+    return embed_field(a -> a, sq5-i, x)
+end
+
+function rconj(x :: Qθ)
+    return embed_field(a -> a, -sq5+i, x)
+end
+
+function Base.://(x :: Qθ, y :: Qθ)
+    y1 = conj(y)
+    y2 = rconj(y)
+    y3 = rconj(y1)
+    alg_conj = y1*y2*y3
+    norm = y*alg_conj
+    return x*alg_conj*norm.denom//norm.coeffs[1]
+end
+
+ζ = (i - 2)//sq5
+
 @NumFields.simple_number_field_concrete Qρ  [-36, 0, 8, 0] ρ
 
 @NumFields.simple_number_field_lazy Qζ [-1, 1, -1, 1] ζ
