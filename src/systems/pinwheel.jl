@@ -19,7 +19,6 @@ i = inv(Pinwheel.nsmap)(a[2])
 ζ = (i - 2)//sq5
 conj = complex_conjugation(K)
 
-
 @def_structequal struct PinwheelElem <: DGroupElem
     rot_ζ :: Int
     rot_i :: Int
@@ -32,6 +31,10 @@ function Base.hash(x :: PinwheelElem, h::UInt)
     return hash((x.rot_ζ, x.rot_i, x.refl, string(x.z)), h)
 end
 
+function embed_float(x  :: PinwheelElem)
+    cpx = Hecke.complex_embeddings(K)[2](x.z, 64)
+    return Float64.([real(cpx); imag(cpx)])
+end
 
 function Base.:*(g :: PinwheelElem, h :: PinwheelElem)
     if !g.refl
@@ -77,7 +80,6 @@ function CoreDefs.embed_aff(g :: PinwheelElem)
     return [m[1,1], m[2,1], (-1)^g.refl*m[1,2], (-1)^g.refl*m[2,2], real(z), imag(z)]
 end
 
-
 struct PinwheelPTile end
 
 function CoreDefs.draw(::PinwheelPTile, action)
@@ -117,6 +119,9 @@ const right = (1,0)
 const ϑ = (0,1)
 
 
+function embed_float(x  :: Pair{PinwheelElem, PinwheelPTile})
+    embed_float(x[1])
+end
 function vertices(t :: Pair{PinwheelElem, PinwheelPTile})
     return Dict([t[1]*K(0) => right, t[1]*K(1) => 2 .* right, t[1]*K(2) => ϑ, t[1]*(i) => right.-ϑ])
 end
