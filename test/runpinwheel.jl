@@ -99,20 +99,12 @@ end w h "vertex_star_1.png"
     #draw(first_tile, sc, "black", :stroke)
 end w h "vertex_star_2.png"
 
-# 3rd iteration in 45 seconds
-@time nu = autocorrelation(pinwheel(), initial_collar, 3)
+# 3rd iteration in 45 seconds with nf_field
+@time nu = autocorrelation(pinwheel(), initial_collar, 5)
 
-rs = Vector{Float64}()
-freqs = Vector{Float64}()
-for (i,j) in nu
-    push!(rs,norm(Pinwheel.embed_float(i)))
-    push!(freqs,j)
-end
 xs = 0.1:0.01:10
 ys = zeros(length(xs))
 for (i,j) in nu
     ys +=j*besselj0.(2*pi*2/sqrt(5)*norm(Pinwheel.embed_float(i))*xs)
-end
-for i=1:length(xs)
 end
 plot(xs,ys,ticks=0:0.5:10)

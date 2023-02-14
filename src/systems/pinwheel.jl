@@ -42,6 +42,9 @@ function Base.:^(x :: Qθ, k :: Integer)
         x*x^(k-1)
     end
 end
+function embed_float(x  :: Qθ)
+    embed_field(Complex{Float64}, im + sqrt(5), x)
+end
 
 ζ = (i-2)//sq5
 
@@ -52,8 +55,8 @@ end
     z :: Qθ
 end
 
-function embed_float(x  :: Qθ)
-    embed_field(Complex{Float64}, im + sqrt(5), x)
+function embed_float(x  :: PinwheelElem)
+    embed_float(x.z)
 end
 
 function Base.:*(g :: PinwheelElem, h :: PinwheelElem)
