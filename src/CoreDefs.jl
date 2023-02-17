@@ -356,8 +356,8 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
     return freq
 end
 
-# Radius should be forces by the chosen prototile depth!
-function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth) where {G, D, L}
+# Radius should be forced by the chosen prototile depth!
+function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights=nothing) where {G, D, L}
     (collars, Sc) = total_collaring(S, initial_collar)
     n = length(collars)
     A_tr = transition_matrix(Sc, 1:n)
@@ -372,18 +372,37 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth) where {
     end
 
     measure = Dict{G, Float64}()
-    for label in 1:n
-        domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
-        forced_domain = substitute(S, collars[label], depth-1)
+    if isnothing(weights)
+        for label in 1:n
+            domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+            forced_domain = substitute(S, collars[label], depth-1)
 
-        for tile in domain
-            translated_f_domain = inv(tile[1]) * forced_domain
-            for t in translated_f_domain
-                g = t[1]
-                if g in keys(measure)
-                    measure[g] += v_PF[label]/λ_PF^(depth-1)
-                else
-                    measure[g] = v_PF[label]/λ_PF^(depth-1)
+            for tile in domain
+                translated_f_domain = inv(tile[1]) * forced_domain
+                for t in translated_f_domain
+                    g = t[1]
+                    if g in keys(measure)
+                        measure[g] += v_PF[label]/λ_PF^(depth-1)
+                    else
+                        measure[g] = v_PF[label]/λ_PF^(depth-1)
+                    end
+                end
+            end
+        end
+    else
+        for label in 1:n
+            domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+            forced_domain = substitute(S, collars[label], depth-1)
+
+            for tile in domain
+                translated_f_domain = inv(tile[1]) * forced_domain
+                for t in translated_f_domain
+                    g = t[1]
+                    if g in keys(measure)
+                        measure[g] += v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
+                    else
+                        measure[g] = v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
+                    end
                 end
             end
         end

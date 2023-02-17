@@ -1,7 +1,6 @@
 using SubstitutionTilings
 using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ
-using Test
 
 using Luxor
 

@@ -56,7 +56,7 @@ end
 function CoreDefs.dilate(λ :: Int, t :: ChairElem)
     return ChairElem(t.angle, λ*t.x, λ*t.y)
 end
-function CoreDefs.id(::ChairElem)
+function CoreDefs.id(::Type{ChairElem})
     return ChairElem(0,0,0)
 end
 function Base.inv(g::ChairElem)
@@ -119,7 +119,7 @@ function adjacent(xs,ys)
     end
     return false
 end
-function collar_in(tiling, g::ChairElem)
+function CoreDefs.collar_in(tiling, g::ChairElem)
     result = Pair{ChairElem, ChairPTile}[]
     tiling_dict = Dict(tiling)
     squares_g = tiling_dict[g]
