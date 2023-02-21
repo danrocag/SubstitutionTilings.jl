@@ -5,6 +5,7 @@ using Luxor
 
 using Bessels
 using LinearAlgebra
+using Plots
 
 Qθ = Pinwheel.Qθ
 
@@ -102,13 +103,13 @@ function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, 
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(pinwheel(), initial_collar, 5, weights=balanced)
+@time nu = autocorrelation(pinwheel(), initial_collar, 3, weights=balanced)
 maximum(norm.(Pinwheel.embed_float.(keys(nu))))
 
 xs = 0.0001:0.001:5
 ys = zeros(length(xs))
 
-R = 45
+R = 20
 count = 0
 for (i,j) in nu
     r = norm(Pinwheel.embed_float(i))

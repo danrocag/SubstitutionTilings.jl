@@ -89,14 +89,18 @@ end
 
 
 
-function embed_nf(x)
+function embed_nf(x :: Qζ)
     ζ_float = complex(cos(2*pi/10), sin(2*pi/10))
     return embed_field(Complex{Float64}, ζ_float, x)
 end
-function embed_nf_p(x)
+function embed_nf_p(x :: Qζ)
     z = embed_nf(x)
     return Point(real(z), imag(z))
 end
+function embed_float(x :: PenroseElem)
+    embed_nf(x.z)
+end
+
 function CoreDefs.embed_aff(g :: PenroseElem)
     m = [cos(2*pi/10) sin(2*pi/10); -sin(2*pi/10) cos(2*pi/10)]^g.rot
 
@@ -141,10 +145,27 @@ function in_border(x, ptile :: PenrosePTile)
         ])
     end
 end
+function in_border(x, tile :: Pair{PenroseElem, PenrosePTile})
+    in_border(inv(t[1])*x, t[2])
+end
+
+function vertices(ptile :: PenrosePTile)
+    Dict(ptile == Hkite ? Pair{Qζ, Int}[
+        1 => 36,
+        ζ^4 => 72,
+        ζ^6 => 72] : [
+        0 => 108,
+        ζ^2-1 => 36,
+        ζ^8-1 => 36])
+end
+function CoreDefs.vertices(tile :: Pair{PenroseElem, PenrosePTile})
+    tile[1]*vertices(tile[2])
+end
+@collar_in_from_vertices PenroseElem PenrosePTile 0 360
+
 
 
 function penrose()
-    # This is a function only so that Revise works
     pen_subst = Dict([
         (Hkite, [
             hkite(7, 0, ζ^6+ζ^3//ϕ),

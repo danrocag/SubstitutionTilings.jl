@@ -145,46 +145,10 @@ const down = (0,1)
 function embed_float(x  :: Pair{PinwheelElem, PinwheelPTile})
     embed_float(x[1])
 end
-function vertices(t :: Pair{PinwheelElem, PinwheelPTile})
+
+function CoreDefs.vertices(t :: Pair{PinwheelElem, PinwheelPTile})
     return Dict([t[1]*Qθ(0) => right, t[1]*Qθ(1) => 2 .* right, t[1]*Qθ(2) => down, t[1]*(i) => right.-down])
 end
-
-function precollar_in(tiling :: Dict, g :: PinwheelElem)
-    gvertices = vertices(g => tiling[g])
-    precollar =  []
-    for t in tiling
-        if !isempty(keys(vertices(t)) ∩ keys(gvertices))
-            push!(precollar,t)
-        end
-    end
-    return Dict(precollar)
-end
-
-function CoreDefs.is_interior(tiling :: Dict, g :: PinwheelElem)
-    angle_sums = Dict(g => (0,0) for k in keys(vertices(g => tiling[g])))
-    for tile in tiling
-        for (vertex,angle) in vertices(tile)
-            if vertex ∈ keys(angle_sums)
-                angle_sums[vertex] = angle_sums[vertex] .+ angle
-            end
-        end
-    end
-
-    for (vertex, angle) in angle_sums
-        if (angle[1] % 4 ≠ 0) || angle[2] ≠ 0
-            return false
-        end
-    end
-    return true
-end
-
-function CoreDefs.collar_in(tiling :: Dict, g :: PinwheelElem)
-    precollar =  precollar_in(tiling , g)
-    if !is_interior(precollar, g)
-        throw(UnrecognizedCollar)
-    else
-        return precollar
-    end
-end
+@collar_in_from_vertices PinwheelElem PinwheelPTile [0,0] [4,0]
 
 end

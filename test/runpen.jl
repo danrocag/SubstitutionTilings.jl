@@ -6,6 +6,7 @@ using BenchmarkTools
 using Plots
 
 using Luxor
+using Bessels
 
 const L = Penrose.Qζ
 
@@ -17,11 +18,12 @@ setantialias(6)
 
 width = 800
 height = 800
-sc = 200
+sc = 100
 @draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
-    tiling = substitute(penrose(), [first_tile], 1, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    #tiling = substitute(penrose(), [first_tile], 4, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    tiling = initial_collar
     println(typeof(tiling))
     setline(1)
 
@@ -174,9 +176,31 @@ plot(log.(n_arr), log.(t_arr))
 # Frequency counting with arrays is exponential in the amount of tiles
 # with Dicts it is more like linear
 
-tiling = substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50))
-empirical_frequency(pentagon, tiling)
+tiling = substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=50, h=50))
+i = argmin(abs.(Penrose.embed_nf.([t[1].z for t in tiling])))
+@time initial_collar = Penrose.collar_in(Dict(tiling), tiling[i][1], check=true)
+function balanced(_ :: Penrose.PenrosePTile, t :: Pair{Penrose.PenroseElem, Penrose.PenrosePTile})
+    t[1].refl ? 1 : -1
+end
+# 3rd iteration in 45 seconds with nf_field
+@time nu = autocorrelation(penrose(), initial_collar, 6, weights=balanced)
+maximum(abs.(Penrose.embed_float.(keys(nu))))
+xs = 0:0.001:2
+ys = zeros(length(xs))
+R = 24
+count = 0
+for (i,j) in nu
+    r = abs(Penrose.embed_float(i))
+    if r <= R
+        count += 1
+        ys += j*besselj0.(2*pi*r*xs)
+    end
+end
+plot(xs,ys,xticks=0:0.5:10)
 
+
+
+empirical_frequency(pentagon, tiling)
 Penrose.frequency(pentagon, 4)
 @testset "Frequencies" begin
     @test Penrose.frequency([hkite()], 4) == ψ

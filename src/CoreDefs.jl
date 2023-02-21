@@ -2,6 +2,7 @@ module CoreDefs
 
 export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem
 export collar_in, is_interior, frequency, total_collaring, UnrecognizedCollar, transition_matrix
+export vertices, @collar_in_from_vertices
 export embed_center
 export autocorrelation
 
@@ -244,11 +245,11 @@ end
 struct UnrecognizedCollar <: Exception end
 function collar_in end
 function is_interior end
+function vertices end
 
 function collar_class(tiling, g)
     return inv(g)*collar_in(tiling, g)
 end
-
 function center_label(patch)
     e = id(typeof(collect(keys(patch))[1]))
     return patch[e]
@@ -256,6 +257,46 @@ end
 function center_tile(patch)
     e = id(typeof(collect(keys(patch))[1] ))
     return e => patch[e]
+end
+
+macro collar_in_from_vertices(G, L, zero_angle, full_circle)
+    return quote
+        function precollar_in(tiling :: Dict{$(esc(G)), $(esc(L))}, g :: $(esc(G)))
+            gvertices = vertices(g => tiling[g])
+            precollar =  []
+            for t in tiling
+                if !isempty(keys(vertices(t)) ∩ keys(gvertices))
+                    push!(precollar,t)
+                end
+            end
+            return Dict(precollar)
+        end
+        function CoreDefs.is_interior(tiling :: Dict{$(esc(G)), $(esc(L))}, g :: $(esc(G)))
+            angle_sums = Dict(k => $zero_angle for k in keys(vertices(g => tiling[g])))
+            for tile in tiling
+                for (vertex,angle) in vertices(tile)
+                    if vertex ∈ keys(angle_sums)
+                        angle_sums[vertex] = angle_sums[vertex] .+ angle
+                    end
+                end
+            end
+        
+            for (vertex, angle) in angle_sums
+                if (angle ≠ $full_circle)
+                    return false
+                end
+            end
+            return true
+        end
+        function CoreDefs.collar_in(tiling :: Dict{$(esc(G)), $(esc(L))}, g :: $(esc(G)); check=false)
+            precollar =  precollar_in(tiling , g)
+            if check && !is_interior(precollar, g)
+                throw(UnrecognizedCollar)
+            else
+                return precollar
+            end
+        end
+    end
 end
 
 """
@@ -267,6 +308,8 @@ The result is given as a tuple `(collars, Sc)`
 where `collars` is the list of all collars that happen in `S`-legal tilings
 and `Sc` is the corresponding substitution system,
 where the labels are integers constituting indexes in `collars`.
+
+Requires `collar_in` to be implemented for the given substitution system.
 """
 function total_collaring(S :: SubSystem{G,D,L}, initial_collar) where {G,D,L}
     collars = [initial_collar]
@@ -301,6 +344,7 @@ calculates the frequency of `patch` in `S`.
 `depth` determines how the level at which the frequency is calculated:
 the result is only exact if `depth` is high enough, but lower values result in faster computation.
 
+Requires `collar_in` to be implemented for the given substitution system.
 """
 function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where {G, D, L}
     (collars, Sc) = total_collaring(S, initial_collar)
@@ -357,6 +401,15 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
 end
 
 # Radius should be forced by the chosen prototile depth!
+"""
+Given a (primitive) substitution system `S`,
+some collar `initial_collar` and some patch `patch` (both centered at the origin) and some depth `depth`,
+calculates the autocorrelation measure of a tiling for all differences between supertiles of depth `depth`.
+The values are accurate as long as `depth` is high enough to force collars.
+`weights(i :: L,g :: G,j :: L)` gives the weight used to compute the autocorrelation: by default it is constantly `1`
+
+`collar_in` should be implemented.
+"""
 function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights=nothing) where {G, D, L}
     (collars, Sc) = total_collaring(S, initial_collar)
     n = length(collars)
@@ -381,7 +434,7 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
                 translated_f_domain = inv(tile[1]) * forced_domain
                 for t in translated_f_domain
                     g = t[1]
-                    if g in keys(measure)
+                    if g in Set(keys(measure))
                         measure[g] += v_PF[label]/λ_PF^(depth-1)
                     else
                         measure[g] = v_PF[label]/λ_PF^(depth-1)
@@ -398,7 +451,7 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
                 translated_f_domain = inv(tile[1]) * forced_domain
                 for t in translated_f_domain
                     g = t[1]
-                    if g in keys(measure)
+                    if g in Set(keys(measure))
                         measure[g] += v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
                     else
                         measure[g] = v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
