@@ -1,17 +1,12 @@
 using SubstitutionTilings
 using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ
-using Test
-using BenchmarkTools
 using Plots
-
 using Luxor
 using Bessels
 
 const L = Penrose.Qζ
 
-
-setantialias(6)
 
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
@@ -178,27 +173,27 @@ plot(log.(n_arr), log.(t_arr))
 
 tiling = substitute(penrose(), [hkite(0,0,L(0))], 20, Penrose.in_bounds, (w=50, h=50))
 i = argmin(abs.(Penrose.embed_nf.([t[1].z for t in tiling])))
-@time initial_collar = Penrose.collar_in(Dict(tiling), tiling[i][1], check=true)
+@time initial_collar = collar_in(Dict(tiling), tiling[i][1], check=true)
+frequency(penrose(), initial_collar, Dict(pentagon), 4)
+
 function balanced(_ :: Penrose.PenrosePTile, t :: Pair{Penrose.PenroseElem, Penrose.PenrosePTile})
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(penrose(), initial_collar, 6, weights=balanced)
+@time nu = autocorrelation(penrose(), initial_collar, 9, weights=balanced);
 maximum(abs.(Penrose.embed_float.(keys(nu))))
 xs = 0:0.001:2
 ys = zeros(length(xs))
-R = 24
+R = 40
 count = 0
 for (i,j) in nu
     r = abs(Penrose.embed_float(i))
-    if r <= R
+    if true #r <= R
         count += 1
         ys += j*besselj0.(2*pi*r*xs)
     end
 end
 plot(xs,ys,xticks=0:0.5:10)
-
-
 
 empirical_frequency(pentagon, tiling)
 Penrose.frequency(pentagon, 4)

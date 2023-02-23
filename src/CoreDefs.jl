@@ -434,7 +434,7 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
                 translated_f_domain = inv(tile[1]) * forced_domain
                 for t in translated_f_domain
                     g = t[1]
-                    if g in Set(keys(measure))
+                    if haskey(measure, g)
                         measure[g] += v_PF[label]/λ_PF^(depth-1)
                     else
                         measure[g] = v_PF[label]/λ_PF^(depth-1)
@@ -445,13 +445,13 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
     else
         for label in 1:n
             domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
-            forced_domain = substitute(S, collars[label], depth-1)
+            forced_domain = substitute(S, (collars[label]), depth-1)
 
             for tile in domain
                 translated_f_domain = inv(tile[1]) * forced_domain
                 for t in translated_f_domain
                     g = t[1]
-                    if g in Set(keys(measure))
+                    if haskey(measure,g)
                         measure[g] += v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
                     else
                         measure[g] = v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)

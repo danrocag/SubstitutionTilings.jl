@@ -116,7 +116,6 @@ macro simple_number_field_lazy(name, field_gen_coeffs, generator)
         end
 
 
-
         function Base.:/(x :: $(esc(name)), y :: Integer)
             return $(esc(name))(x.coeffs,x.denom*y, false)
         end
@@ -152,8 +151,14 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
 
 
             function ($(esc(name)))(v :: AbstractVector{<:Integer}, denom :: Integer)
-                divisor = gcd(v..., denom)
-                return new(div.(v,divisor), div(denom, divisor))
+                if denom == 1
+                    return new(v,1)
+                elseif denom == -1
+                    return new(-v,1)
+                else
+                    divisor = gcd(v..., denom)
+                    return new(div.(v,divisor), div(denom, divisor))
+                end
             end
         end
 

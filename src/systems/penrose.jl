@@ -88,7 +88,6 @@ function hdart()
 end
 
 
-
 function embed_nf(x :: Qζ)
     ζ_float = complex(cos(2*pi/10), sin(2*pi/10))
     return embed_field(Complex{Float64}, ζ_float, x)
