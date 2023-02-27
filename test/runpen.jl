@@ -17,8 +17,8 @@ sc = 100
 @draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
-    #tiling = substitute(penrose(), [first_tile], 4, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    tiling = initial_collar
+    tiling = substitute(penrose(), [first_tile], 4, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    #tiling = initial_collar
     println(typeof(tiling))
     setline(1)
 
@@ -180,20 +180,20 @@ function balanced(_ :: Penrose.PenrosePTile, t :: Pair{Penrose.PenroseElem, Penr
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(penrose(), initial_collar, 9, weights=balanced);
+@time nu = autocorrelation(penrose(), initial_collar, 8, weights=balanced);
 maximum(abs.(Penrose.embed_float.(keys(nu))))
-xs = 0:0.001:2
+xs = exp.(-2:0.0001:1)
 ys = zeros(length(xs))
-R = 40
+R = 80
 count = 0
 for (i,j) in nu
     r = abs(Penrose.embed_float(i))
-    if true #r <= R
+    if true#r <= R
         count += 1
         ys += j*besselj0.(2*pi*r*xs)
     end
 end
-plot(xs,ys,xticks=0:0.5:10)
+plot(xs,ys, xscale=:log10)
 
 empirical_frequency(pentagon, tiling)
 Penrose.frequency(pentagon, 4)

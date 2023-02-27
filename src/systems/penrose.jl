@@ -14,12 +14,13 @@ promote_rule(::Type{Qζ}, ::Type{Rational{Int64}}) = Qζ
 const ϕ = ζ + ζ^9
 const L = Qζ
 
+const ζ_powers = [ζ^i for i=0:10]
 function conj(x :: Qζ)
-    return embed_field(a -> a, ζ^9, x)
+    return embed_field(a -> a, ζ_powers[10], x)
 end
 
 function galois_gen(x :: Qζ)
-    return embed_field(a -> a, ζ^3, x)
+    return embed_field(a -> a, ζ_powers[4], x)
 end
 
 function Base.://(x :: Qζ, y :: Qζ)
@@ -42,21 +43,21 @@ function Base.:*(g :: PenroseElem, h :: PenroseElem)
         return PenroseElem(
             mod(g.rot + h.rot, 10),
             h.refl,
-            g.z + ζ^(10-g.rot) * h.z
+            g.z + ζ_powers[11-g.rot] * h.z
         )
     else
         return PenroseElem(
             mod(g.rot - h.rot, 10),
             !h.refl,
-            g.z + ζ^(10-g.rot) * conj(h.z)
+            g.z + ζ_powers[11-g.rot] * conj(h.z)
         )
     end
 end
 function Base.:*(g :: PenroseElem, x :: Qζ)
     if !g.refl
-        return g.z + ζ^(10-g.rot) * x
+        return g.z + ζ_powers[11-g.rot] * x
     else
-        return g.z + ζ^(10-g.rot) * conj(x)
+        return g.z + ζ_powers[11-g.rot] * conj(x)
     end
 end
 function CoreDefs.dilate(λ :: Qζ, g :: PenroseElem)

@@ -59,7 +59,6 @@ sc = 100
 end width height "pinwheel-rule"
 
 vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
-substitute(pinwheel(), [wheel()], 3)
 initial_collar = inv(selfsimilar[1])*collar_in(Dict(substitute(pinwheel(), [selfsimilar], 2)), selfsimilar[1])
 
 vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0,2,1,Qθ(0))])
@@ -103,10 +102,10 @@ function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, 
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(pinwheel(), initial_collar, 3, weights=balanced)
+@time nu = autocorrelation(pinwheel(), initial_collar, 3; weights=balanced);
 maximum(norm.(Pinwheel.embed_float.(keys(nu))))
 
-xs = 0.0001:0.001:5
+xs = 0:0.00001:5
 ys = zeros(length(xs))
 
 R = 20
@@ -118,7 +117,9 @@ for (i,j) in nu
         ys += j*besselj0.(2*pi*r*xs)
     end
 end
-plot(xs,ys,xticks=0:0.5:10)
+plot(xs,abs.(ys),xticks=0:0.5:10)
+
+sum([f for (g,f) in nu if norm(Pinwheel.embed_float(g))≈sqrt(8/5)])
 
 Is = zeros(length(xs))
 for i in 1:length(xs) 

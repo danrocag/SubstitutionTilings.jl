@@ -46,7 +46,8 @@ function embed_float(x  :: Qθ)
     embed_field(Complex{Float64}, im + sqrt(5), x)
 end
 
-ζ = (i-2)//sq5
+const ζ = (i-2)//sq5
+const ζ_inv = Qθ(1)//ζ
 
 @def_structequal struct PinwheelElem <: DGroupElem
     rot_ζ :: Int
@@ -61,18 +62,19 @@ end
 
 function Base.:*(g :: PinwheelElem, h :: PinwheelElem)
     if !g.refl
+
         return PinwheelElem(
             g.rot_ζ + h.rot_ζ,
             mod(g.rot_i + h.rot_i, 4),
             h.refl,
-            g.z + i^g.rot_i * (-ζ)^-g.rot_ζ * h.z
+            g.z + i^g.rot_i * (g.rot_ζ >= 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * h.z
         )
     else
         return PinwheelElem(
             g.rot_ζ - h.rot_ζ,
             mod(g.rot_i - h.rot_i, 4),
             !h.refl,
-            g.z + i^g.rot_i * (-ζ)^-g.rot_ζ * conj(h.z)
+            g.z + i^g.rot_i * (g.rot_ζ >= 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * conj(h.z)
         )
     end
 end

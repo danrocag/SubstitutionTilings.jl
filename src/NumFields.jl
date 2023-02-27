@@ -150,11 +150,9 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
             denom :: $(esc(T))
 
 
-            function ($(esc(name)))(v :: AbstractVector{<:Integer}, denom :: Integer)
-                if denom == 1
-                    return new(v,1)
-                elseif denom == -1
-                    return new(-v,1)
+            function ($(esc(name)))(v :: AbstractVector{<:Integer}, denom :: Integer, check=true)
+                if !check || denom == 1
+                    return new(v,denom)
                 else
                     divisor = gcd(v..., denom)
                     return new(div.(v,divisor), div(denom, divisor))
@@ -184,13 +182,13 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
 
 
         function Base.:+(x :: $(esc(name)), y :: $(esc(name)))
-            return ($(esc(name))(x.coeffs*y.denom + y.coeffs*x.denom, x.denom*y.denom))
+            return ($(esc(name))(x.coeffs*y.denom + y.coeffs*x.denom, x.denom*y.denom, x.denom != 1 || y.denom != 1))
         end
         function Base.:-(x :: $(esc(name)), y :: $(esc(name)))
-            return ($(esc(name))(x.coeffs*y.denom - y.coeffs*x.denom, x.denom*y.denom))
+            return ($(esc(name))(x.coeffs*y.denom - y.coeffs*x.denom, x.denom*y.denom, x.denom != 1 || y.denom != 1))
         end
         function Base.:-(x :: $(esc(name)))
-            return ($(esc(name))(-x.coeffs, x.denom))
+            return ($(esc(name))(-x.coeffs, x.denom, false))
         end
         function Base.:*(x :: $(esc(name)), y :: $(esc(name)))
             coeffs = zeros(SVector{$N, $(esc(T))})
