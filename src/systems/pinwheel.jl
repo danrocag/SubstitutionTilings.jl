@@ -67,14 +67,14 @@ function Base.:*(g :: PinwheelElem, h :: PinwheelElem)
             g.rot_ζ + h.rot_ζ,
             mod(g.rot_i + h.rot_i, 4),
             h.refl,
-            g.z + i^g.rot_i * (g.rot_ζ >= 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * h.z
+            g.z + i^g.rot_i * (g.rot_ζ < 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * h.z
         )
     else
         return PinwheelElem(
             g.rot_ζ - h.rot_ζ,
             mod(g.rot_i - h.rot_i, 4),
             !h.refl,
-            g.z + i^g.rot_i * (g.rot_ζ >= 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * conj(h.z)
+            g.z + i^g.rot_i * (g.rot_ζ < 0 ? -ζ : -ζ_inv)^abs(g.rot_ζ) * conj(h.z)
         )
     end
 end
