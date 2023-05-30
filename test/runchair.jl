@@ -13,12 +13,12 @@ using Luxor
 
     for tile in tiling
         origin()
+        setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
         origin()
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
-        setopacity(1)
     end
 end 800 800 "chair-tiling"
 
@@ -38,15 +38,14 @@ sc = 20
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
+            setopacity(1)
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
             origin()
             translate(pos)
-            scale(sc)
-            sethue("black")
-            transform(embed_aff(tile[1]))
-            setline(0.0000001)
-            #draw(tile[2], :stroke)
+            setline(0.1)
+            setopacity(0.3)
+            draw(tile, sc, "black", :stroke)
         end
     end
 end width height "chair-rule"

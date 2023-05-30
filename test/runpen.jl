@@ -13,28 +13,61 @@ const L = Penrose.Qζ
 
 width = 800
 height = 800
-sc = 100
-@draw begin
+sc = 20
+@pdf begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
-    tiling = substitute(penrose(), [first_tile], 4, Penrose.in_bounds, (w=width/sc, h=height/sc))
+    tiling = substitute(penrose(), [first_tile], 10, Penrose.in_bounds, (w=width/sc, h=height/sc))
     #tiling = initial_collar
     println(typeof(tiling))
-    setline(1)
+
 
     for tile in tiling
         origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         origin()
-        setcolor("black")
-        scale(sc)
-        #circle(embed_center(tile[1]), 0.1, :fill)
-        sethue("black")
+        setline(0.5)
+        setopacity(0.4)
+        draw(tile, sc, "black", :stroke)
+        setopacity(1)
     end
     origin()
     setline(1)
     #draw(first_tile, sc/0.618, "black", :stroke)
-end width height #"penrose.png"
+end width height "penrose-tiling.pdf"
+
+width = 800
+height = 800
+sc = 60
+@pdf begin
+    colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
+    #tiling = initial_collar
+    println(typeof(tiling))
+    quadrants = Tiler(width, height, 2, 2, margin=5)
+
+    for (pos, n) in quadrants
+        println(n)
+        first_tile = n % 2 == 0 ? hkite() : hdart()
+        tiling = substitute(penrose(), [first_tile], div(n,2))
+        for tile in tiling
+            origin()
+            translate(pos)
+            scale(sc)
+            sethue(colors[Penrose.color(tile)])
+            transform(embed_aff(tile[1]))
+            draw(tile[2], :fill)
+            origin()
+            sethue("black")
+            translate(pos)
+            scale(sc)
+            transform(embed_aff(tile[1]))
+            setline(1)
+            setopacity(0.5)
+            draw(tile[2], :stroke)
+            setopacity(1)
+        end
+    end
+end width height "penrose-rule"
 
 width = 1280*2
 height = 800*2
@@ -180,21 +213,24 @@ function balanced(_ :: Penrose.PenrosePTile, t :: Pair{Penrose.PenroseElem, Penr
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(penrose(), initial_collar, 8, weights=balanced);
-maximum(abs.(Penrose.embed_float.(keys(nu))))
-xs = exp.(-2:0.0001:1)
-ys = zeros(length(xs))
-R = 80
-count = 0
-for (i,j) in nu
-    r = abs(Penrose.embed_float(i))
-    if true#r <= R
-        count += 1
-        ys += j*besselj0.(2*pi*r*xs)
-    end
+@time nu = autocorrelation(penrose(), initial_collar, 9);
+nu_arr = collect(nu)
+rs = zeros(length(nu_arr))
+freqs = zeros(length(nu_arr))
+for j in eachindex(nu_arr)
+    g, freq = nu_arr[j]
+    rs[j] = abs(Penrose.embed_float(g))
+    freqs[j] = freq
 end
-plot(xs,ys, xscale=:log10)
 
+maximum(abs.(Penrose.embed_float.(keys(nu))))
+xs = 0.05:0.001:1
+ys = zeros(length(xs))
+@time for i=eachindex(xs)
+    ys[i] = sum_kbn(freqs.*besselj0.(2*pi*rs*xs[i]))
+end
+plot(xs,ys)
+plot!(xs,xs*0)
 empirical_frequency(pentagon, tiling)
 Penrose.frequency(pentagon, 4)
 @testset "Frequencies" begin

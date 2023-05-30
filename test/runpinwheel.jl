@@ -3,10 +3,6 @@ using SubstitutionTilings.Pinwheel
 
 using Luxor
 
-using Bessels
-using LinearAlgebra
-using Plots
-
 Qθ = Pinwheel.Qθ
 
 selfsimilar = wheel(0,0,0,(-1-i)//4)
@@ -22,12 +18,13 @@ sc = 30
 
     for tile in tiling
         origin()
+        setopacity(1)
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
         origin()
-        #draw(tile, sc, "black", :stroke)
+        setline(1)
+        setopacity(0.5)
+        draw(tile, sc, "black", :stroke)
     end
-    #setline(2)
-    #draw(selfsimilar, sc, "black", :stroke)
 end w h "pinwheel-tiling"
 
 width = 800
@@ -48,19 +45,21 @@ sc = 100
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
             origin()
+            sethue("black")
             translate(pos)
             scale(sc)
-            sethue("black")
             transform(embed_aff(tile[1]))
-            setline(0.0000001)
-            #draw(tile[2], :stroke)
+            setline(1)
+            setopacity(0.4)
+            draw(tile[2], :stroke)
+            setopacity(1)
         end
     end
 end width height "pinwheel-rule"
 
-vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
 initial_collar = inv(selfsimilar[1])*collar_in(Dict(substitute(pinwheel(), [selfsimilar], 2)), selfsimilar[1])
 
+vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
 vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0,2,1,Qθ(0))])
 @time frequency(pinwheel(), initial_collar, vertex_star,2)
 @time frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
@@ -101,29 +100,32 @@ end w h "vertex_star_2.png"
 function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, Pinwheel.PinwheelPTile})
     t[1].refl ? 1 : -1
 end
-# 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(pinwheel(), initial_collar, 3; weights=balanced);
+# 3rd iteration in 45 seconds with nf_fie
+using Serialization
+@time nu = autocorrelation(pinwheel(), initial_collar, 5);
+serialize("pinwheel_nu_5", nu)
+
+nu = deserialize("pinwheel_nu_5")
+nu_arr = collect(nu)
 maximum(norm.(Pinwheel.embed_float.(keys(nu))))
 
-xs = 0:0.00001:5
+rs = zeros(length(nu_arr))
+freqs = zeros(length(nu_arr))
+for j in eachindex(nu_arr)
+    g, freq = nu_arr[j]
+    rs[j] = abs(Pinwheel.embed_float(g))
+    freqs[j] = freq
+end
+
+xs = 0.05:0.01:10
 ys = zeros(length(xs))
 
-R = 20
-count = 0
-for (i,j) in nu
-    r = norm(Pinwheel.embed_float(i))
-    if true
-        count += 1
-        ys += j*besselj0.(2*pi*r*xs)
-    end
+using Bessels
+using AccurateArithmetic
+@time for i=eachindex(xs)
+    ys[i] = sum_kbn(rs.*freqs.*besselj0.(2*pi*rs*xs[i]))
 end
-plot(xs,abs.(ys),xticks=0:0.5:10)
 
-sum([f for (g,f) in nu if norm(Pinwheel.embed_float(g))≈sqrt(8/5)])
-
-Is = zeros(length(xs))
-for i in 1:length(xs) 
-    Is[i] = sum(ys[1:i].*xs[1:i])
-end
-hs = log.(abs.(Is))./log.(xs)
-plot(xs[1:50],hs[1:50],xticks=0:0.5:10)
+using Plots
+plot(xs,ys)
+plot!(xs,xs*0)

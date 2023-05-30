@@ -4,7 +4,6 @@ using SubstitutionTilings
 using SubstitutionTilings.NumFields
 using StructEquality
 using Luxor
-using Plots
 using Statistics
 
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
@@ -48,17 +47,17 @@ function SubstitutionTilings.draw(ptile::FibTile, action)
     fτ = (1+sqrt(5))/2
     if ptile == A
         return Luxor.poly([
-            Point(-fτ*0.9,-10),
-            Point(-fτ*0.9,10),
-            Point(fτ*0.9,10),
-            Point(fτ*0.9,-10)
+            Point(-fτ*0.49,-10),
+            Point(-fτ*0.49,10),
+            Point(fτ*0.49,10),
+            Point(fτ*0.49,-10)
         ], close = true, action)
     else
         return Luxor.poly([
-            Point(-0.9,-10),
-            Point(-0.9,10),
-            Point(0.9,10),
-            Point(0.9,-10)
+            Point(-0.49,-10),
+            Point(-0.49,10),
+            Point(0.49,10),
+            Point(0.49,-10)
         ], close = true, action)
     end
 end
@@ -72,12 +71,12 @@ function color(tile :: Pair{FibElem,FibTile})
 end
 
 width = 800
-height = 20
-sc = 20
-@png begin
+height = 30
+sc = 30
+@pdf begin
     colors = ["#DD93FC", "#E7977A"]
     patch = [FibElem(-τ//2) => A, FibElem(τ//2) => A]
-    tiling = substitute(fib, patch, 4)
+    tiling = substitute(fib, patch, 5)
     setline(1)
 
     for tile in tiling
@@ -88,13 +87,13 @@ sc = 20
     origin()
     scale(sc)
     sethue("black")
-    Luxor.poly([
+    """Luxor.poly([
             Point(-0.05,-10),
             Point(-0.05,10),
             Point(0.05,10),
             Point(0.05,-10)
-        ], close = true, :fill)
-end width height
+        ], close = true, :fill)"""
+end width height "fibonacci-tiling"
 
 function SubstitutionTilings.is_interior(tiling :: Dict, t :: FibElem)
     return haskey(tiling, t) && (haskey(tiling, FibElem(t.a-τ)) || haskey(tiling, FibElem(t.a-(1+τ)//2))) && (haskey(tiling, FibElem(t.a+τ)) || haskey(tiling, FibElem(t.a+(1+τ)//2)))
@@ -120,19 +119,28 @@ initial_collar = collar_in(fib_tiling, FibElem(0))
 collars
 
 width = 800
-height = 40
-sc = 20
-@png begin
+height = 200
+sc = 110
+@pdf begin
     colors = ["#DD93FC", "#E7977A"]
-    first_tile = [FibElem(0) => A]
-    tiling = collars[4]
-    setline(1)
+    quadrants = Tiler(width, height, 2, 2, margin=0)
 
-    for tile in tiling
-        origin()
-        draw(tile, sc, colors[color(tile)], :fill)
+    for (pos, n) in quadrants
+        println(n)
+        first_tile = div(n-1,2) == 0 ? (FibElem(0) => A) : (FibElem(0) => B)
+        tiling = substitute(fib, [first_tile], (n-1)%2)
+        for tile in tiling
+            origin()
+            translate(pos)
+            scale(sc)
+            box(O, 1000, 0.5, :clip)
+            sethue(colors[color(tile)])
+            transform(embed_aff(tile[1]))
+            draw(tile[2], :fill)
+            clipreset()
+        end
     end
-end width height
+end width height "fibonacci-rule"
 
 norm = sqrt(1 + phi^2)
 frequency(fib, initial_collar, collars[4], 4)
