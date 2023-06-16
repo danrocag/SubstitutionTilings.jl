@@ -60,7 +60,7 @@ end
 
 
 spectre_angles = [2, -3, 2, 0, 2, 3, -2, 3, -2, 3, 2, -3, 2, 3]
-spectre_indices = [2,6,12,14,11,5]
+spectre_indices = [2,5,6,11,12,14] # [2,6,12,14,11,5]
 spectre = Figure(spectre_angles, spectre_indices)
 mystic_angles = [spectre_angles[1:5];-3; spectre_angles[5:end-1]; 0; spectre_angles[11:end]]
 mystic_indices = [8,14]
@@ -112,7 +112,7 @@ function match(f :: Figure, i :: Int, g :: Figure, j::Int)
     arrow_f*inv(arrow_g)
 end
 
-function build_supertile(init_figure :: Figure, next :: Vector{Tuple{Int, Int, Figure}})
+function build_supertile(init_figure :: Figure, next :: Vector{Tuple{Int, Int, Figure, Any}})
     #@assert init_figure == next[end][3]
     current_figure = init_figure
     result = Tuple{G, Figure}[]
@@ -128,23 +128,23 @@ end
 
 function supertile_instructions(spectre, mystic)
     spectre_supertile_instructions = [
-        (2,3,spectre, 4),
-        (2,4,spectre, nothing),
-        (1,3,spectre, nothing),
-        (2,4,spectre, 1),
-        (2,4,spectre, nothing),
-        (1,3,spectre, 4),
-        (2,4,spectre, 1),
-        (2,1,mystic, nothing)
+        (2,5,spectre, [4]),
+        (3,6,spectre, []),
+        (1,5,spectre, []),
+        (3,6,spectre, [1]),
+        (3,6,spectre, []),
+        (1,5,spectre, [4]),
+        (3,6,spectre, [1]),
+        (3,1,mystic, [])
     ]
     mystic_supertile_instructions = [
-        (2,3,spectre, 4),
-        (2,4,spectre, nothing),
-        (6,5,spectre, 1),
-        (2,4,spectre, nothing),
-        (1,3,spectre, 4),
-        (2,4,spectre, 1),
-        (2,1,mystic, nothing)
+        (2,5,spectre, [4]),
+        (3,6,spectre, []),
+        (2,4,spectre, [1]),
+        (3,6,spectre, []),
+        (1,5,spectre, [4]),
+        (3,6,spectre, [1]),
+        (3,1,mystic, [])
     ]
     return (spectre_supertile_instructions, mystic_supertile_instructions)
 end
@@ -158,13 +158,19 @@ end
 
 @draw begin
     scale(20)
+    fontsize(1)
+    instrs = supertile_instructions(spectre, mystic)
+    (spectre2, mystic2) = outline.(instrs)
     #poly(Point.(displacements(mystic)), action=:stroke)
-    for (g,figure) in build_supertile(mystic, spectre_supertile_instructions)
+    for (g,figure) in build_supertile(mystic, mystic_supertile_instructions(spectre, mystic))
         ps = Ref(g).*displacements(figure)
         poly(Point.(ps), action=:stroke)
-        setopacity(0.5)
+        setopacity(0.6)
+        i = 1
         for mark in figure.marks
             circle(Point(ps[mark]), 0.2, action=:fill)
+            #text(string(i), Point(ds[mark]))
+            i+=1
         end
         setopacity(1)
     end
@@ -174,19 +180,19 @@ function outline(instructions)
     angles = Int[]
     marks = []
     last_connecting_mark = 1
-    (i,j, figure, new_mark) = instructions[1]
+    (i,j, figure, new_marks) = instructions[1]
     println(figure)
     jx = figure.marks[j]
     current_angles = circshift(figure.angles, 1-jx)
     last_connecting_angle = current_angles[end]
     last_figure = figure
-    if !isnothing(new_mark)
+    for new_mark in new_marks
         println("Marks:")
         println(last_connecting_mark)
         println(mod(figure.marks[new_mark]-jx, length(figure.angles)+1))
         push!(marks, last_connecting_mark+mod(figure.marks[new_mark]-jx, length(figure.angles)))
     end
-    for (i,j,figure, new_mark) in instructions[2:end]
+    for (i,j,figure, new_marks) in instructions[2:end]
         ix = last_figure.marks[i]
         slice = 1:mod(ix-jx,length(current_angles))-1
         append!(angles, current_angles[slice])
@@ -197,7 +203,7 @@ function outline(instructions)
         connecting_angle_j = current_angles[end]
         push!(angles, connecting_angle_i+connecting_angle_j-6)
         last_figure = figure
-        if !isnothing(new_mark)
+        for new_mark in new_marks
             println("Marks:")
             println(last_connecting_mark)
             println(mod(figure.marks[new_mark]-jx, length(figure.angles)+1))
@@ -220,14 +226,18 @@ end
 @draw begin
     instrs = supertile_instructions(spectre, mystic)
     (spectre2, mystic2) = outline.(instrs)
-    figure = outline(spectre_supertile_instructions(spectre, mystic))
+    figure = spectre
     println(figure)
 
-    scale(20)
+    scale(40)
+    fontsize(0.5)
     poly(Point.(displacements(figure)), action=:stroke)
     ds = displacements(figure)
+    i = 1
     for mark in figure.marks
         circle(Point(ds[mark]), 0.15, action=:fill)
+        text(string(i), Point(ds[mark]))
+        i += 1
     end
     circle(Point(0,0),0.2,action=:fill)
 end 800 800
