@@ -5,6 +5,8 @@ using SubstitutionTilings.NumFields
 using StructEquality
 using Luxor
 using Statistics
+using Plots
+using LinearAlgebra
 
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
@@ -41,6 +43,10 @@ end
 
 function SubstitutionTilings.embed_aff(g :: FibElem)
     return [1, 0, 0, 1, embed_float(g), 0]
+end
+
+function LinearAlgebra.norm(g :: FibElem)
+    abs(embed_float(g))
 end
 
 function SubstitutionTilings.draw(ptile::FibTile, action)
@@ -142,38 +148,76 @@ sc = 110
     end
 end width height "fibonacci-rule"
 
-norm = sqrt(1 + phi^2)
-frequency(fib, initial_collar, collars[4], 4)
-nu = autocorrelation(fib, initial_collar, 19)
-xs = Vector{Float64}()
-ys = Vector{Float64}()
-for delta in nu
-    if abs(embed_float(delta[1])) < 6000
-        push!(xs, embed_float(delta[1]))
-        push!(ys, delta[2])
-    end
-end
-plot(xs, ys, seriestype = :scatter)
-
-moments = Vector{Float64}()
-Rs = 1:6000
-for R=Rs
-    R = R
-    k = R
-    val = 0.0
-    for delta in nu
-        if abs(embed_float(delta[1])) < R
-            val += delta[2]
+function empirical_autocorrelation(T)
+    measure = Dict{FibElem, Float64}()
+    N = length(T)
+    for t in keys(T)
+        for s in keys(T)
+            g = t*inv(s)
+            if haskey(measure, g)
+                measure[g] += 1/N
+            else
+                measure[g] = 1/N
+            end
         end
     end
-    push!(moments, val)
+    measure
+end
+nu_emp_small = empirical_autocorrelation(fib_tiling)
+
+function small_autocorrelation(T, n)
+    measure = Dict{FibElem, Float64}()
+    measure[FibElem(0)] = 1
+    for t in keys(T)
+        for s in keys(T)
+            g = t*inv(s)
+            if !haskey(measure, g)
+                measure[g] = frequency(fib, initial_collar,
+                    Dict([FibElem(0) => A, g => A]), n)
+                    + frequency(fib, initial_collar,
+                    Dict([FibElem(0) => A, g => B]), n)
+                    + frequency(fib, initial_collar,
+                    Dict([FibElem(0) => B, g => A]), n)
+                    + frequency(fib, initial_collar,
+                    Dict([FibElem(0) => B, g => B]), n)
+            end
+        end
+    end
+    measure
 end
 
-plot(moments)
-C = mean((moments./Rs)[5000:6000])
-phi = (1 + sqrt(5))/2
-covol = (1/phi+1/phi^3)
+ix = 0.01:0.001:1
+plot(ix, abs.(empirical_diffraction(big_tiling, ix)))
+
+nu = autocorrelation(fib, initial_collar, 15, 1)
+
+function total_freq(g, depth)
+    result = 0.
+    result += frequency(fib, initial_collar, Dict(FibElem(0) => A, FibElem(g) => A), depth)
+    result += frequency(fib, initial_collar, Dict(FibElem(0) => B, FibElem(g) => A), depth)
+    result += frequency(fib, initial_collar, Dict(FibElem(0) => A, FibElem(g) => B), depth)
+    result += frequency(fib, initial_collar, Dict(FibElem(0) => B, FibElem(g) => B), depth)
+end
+function check(nu, depth)
+    for t in nu
+        if t[1] != FibElem(0)
+            @assert total_freq(t[1].a, depth) ≈ t[2]
+        end
+    end
+end
+check(nu, 18)
+
+using AccurateArithmetic
+function finite_diffraction_distr(Nu, x)
+    sum([t[1] == FibElem(0) ? t[2]*x : t[2]*sin(norm(t[1])*x)/norm(t[1]) for t in Nu])
+end
+ix=0:0.01:1
+plot(ix, finite_diffraction_distr.(Ref(nu), ix))
+small_tiling = substitute(fib, Dict([FibElem(0) => A]), 2)
+C = moments[end]/Rs[end]
 variances = moments -C.*Rs
-plot(variances)
-plot(variances./Rs)
-plot(log.(abs.(variances))./log.(Rs))
+vs = variances
+#cs = cumsum(variances)
+#vs = (cs + circshift(cs,-5))[1:end-5]/5
+plot(vs)
+plot(log.(abs.(vs))./log.(Rs))

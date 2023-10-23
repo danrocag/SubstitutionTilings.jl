@@ -22,12 +22,12 @@ using Luxor
     end
 end 800 800 "chair-tiling"
 
-width = 400
-height = 500
+width = 600
+height = 300
 sc = 20
 @pdf begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
-    quadrants = Tiler(width, height, 2, 1, margin=5)
+    quadrants = Tiler(width, height, 1, 2, margin=5)
 
     for (pos, n) in quadrants
         first_tile = chair(0,0,0)

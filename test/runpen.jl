@@ -11,7 +11,7 @@ const L = Penrose.Qζ
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
 
-width = 800
+width = 1200
 height = 800
 sc = 20
 @pdf begin
@@ -28,7 +28,7 @@ sc = 20
         origin()
         setline(0.5)
         setopacity(0.4)
-        draw(tile, sc, "black", :stroke)
+        draw(tile, sc, "#DD93FC", :stroke)
         setopacity(1)
     end
     origin()

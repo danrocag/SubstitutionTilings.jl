@@ -18,7 +18,6 @@ sc = 30
 
     for tile in tiling
         origin()
-        setopacity(1)
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
         origin()
         setline(1)
@@ -27,15 +26,15 @@ sc = 30
     end
 end w h "pinwheel-tiling"
 
-width = 800
-height = 800
-sc = 100
+width = 600
+height = 200
+sc = 40
 @pdf begin
     colors = ["#DD93FC", "#E7977A",]
-    quadrants = Tiler(width, height, 2, 1, margin=5)
+    quadrants = Tiler(width, height, 1, 2, margin=5)
 
     for (pos, n) in quadrants
-        first_tile = Pinwheel.PinwheelElem(0,0,0,-1//2*i-Qθ(1//2))*wheel()
+        first_tile = Pinwheel.PinwheelElem(0,0,0,Qθ(-1)-i//2)*wheel()
         tiling = substitute(pinwheel(), [first_tile], n-1)
         for tile in tiling
             origin()
@@ -95,7 +94,6 @@ end w h "vertex_star_1.png"
     setline(2)
     #draw(first_tile, sc, "black", :stroke)
 end w h "vertex_star_2.png"
-
 
 function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, Pinwheel.PinwheelPTile})
     t[1].refl ? 1 : -1
