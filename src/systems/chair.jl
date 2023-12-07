@@ -23,9 +23,10 @@ function chair(angle, x, y)
 end
 
 function sin(i :: Integer)
-    if i == 0 || i == 2
+    ix = mod(i,4)
+    if ix == 0 || ix == 2
         return 0
-    elseif i == 1
+    elseif ix == 1
         return 1
     else
         return -1
@@ -34,18 +35,18 @@ end
 
 
 function cos(i :: Integer)
-    return sin((i+1) % 4 )
+    return sin(i+1)
 end
 
 
 function Base.:*(s :: ChairElem, t :: ChairElem)
     return ChairElem(
-        (s.angle + t.angle) % 4,
+        mod(s.angle + t.angle,4),
         s.x + cos(s.angle)*t.x + sin(s.angle)*t.y,
         s.y - sin(s.angle)*t.x + cos(s.angle)*t.y
     )
 end
-function Base.:*(s :: ChairElem, t :: Pair{Integer, Integer})
+function Base.:*(s :: ChairElem, t :: Tuple{Integer, Integer})
     return [
         s.x + cos(s.angle)*t[1] + sin(s.angle)*t[2],
         s.y - sin(s.angle)*t[1] + cos(s.angle)*t[2],
@@ -119,16 +120,15 @@ function adjacent(xs,ys)
     end
     return false
 end
-function CoreDefs.collar_in(tiling, g::ChairElem)
+function CoreDefs.collar_in(tiling :: Dict{ChairElem, ChairPTile}, g::ChairElem)
     result = Pair{ChairElem, ChairPTile}[]
-    tiling_dict = Dict(tiling)
-    squares_g = tiling_dict[g]
-    for (h,l) in tiling_dict
+    squares_g = tiling[g]
+    for (h,l) in tiling
         if adjacent(squares(g), squares(h))
-            push!(result, (h,l))
+            push!(result, h => l)
         end
     end
-    return result
+    return Dict(result)
 end
 
 end

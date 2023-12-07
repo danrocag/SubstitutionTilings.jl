@@ -5,6 +5,7 @@ using SubstitutionTilings.NumFields
 using StructEquality
 using Luxor
 using Statistics
+using Plots
 
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
@@ -144,7 +145,17 @@ end width height "fibonacci-rule"
 
 norm = sqrt(1 + phi^2)
 frequency(fib, initial_collar, collars[4], 4)
-nu = autocorrelation(fib, initial_collar, 19)
+nu = @time autocorrelation(fib, initial_collar, 17)
+
+a, dx, b = 0, 100, 1000
+xs = a:dx:b
+ys = zeros(length(xs))
+for delta in nu
+    x = embed_float(delta[1])
+    ys += (xs .<= x).*(x-dx .< xs).* delta[2]
+end
+plot(xs, ys, ylims=(0, max(1, dx)))
+
 xs = Vector{Float64}()
 ys = Vector{Float64}()
 for delta in nu

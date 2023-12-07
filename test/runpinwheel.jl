@@ -3,6 +3,7 @@ using SubstitutionTilings.Pinwheel
 
 using Luxor
 
+
 Qθ = Pinwheel.Qθ
 
 selfsimilar = wheel(0,0,0,(-1-i)//4)
@@ -61,8 +62,10 @@ initial_collar = inv(selfsimilar[1])*collar_in(Dict(substitute(pinwheel(), [self
 
 vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
 vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0,2,1,Qθ(0))])
-@time frequency(pinwheel(), initial_collar, vertex_star,2)
-@time frequency(pinwheel(), initial_collar, vertex_star_2,2) # 4x bigger than in Baake-Grimm because every tile gets counted
+@time frequency(pinwheel(), initial_collar, vertex_star, 3)
+@time frequency(pinwheel(), initial_collar, vertex_star_2, 2) # 4x bigger than in Baake-Grimm because every tile gets counted
+@time Pinwheel.CoreDefs.frequencies(pinwheel(), initial_collar, [vertex_star, vertex_star, vertex_star, vertex_star, vertex_star], 2)
+
 
 @png begin
     colors = ["#DD93FC", "#E7977A",]
@@ -96,36 +99,59 @@ end w h "vertex_star_1.png"
     #draw(first_tile, sc, "black", :stroke)
 end w h "vertex_star_2.png"
 
+collars, Sc = total_collaring(pinwheel(), initial_collar)
+
+@draw begin
+    colors = ["#DD93FC", "#E7977A",]
+
+    tiling = collars[2]
+    setline(1)
+
+    for tile in tiling
+        origin()
+        draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
+        origin()
+        draw(tile, sc, "black", :stroke)
+    end
+    setline(2)
+end w h
+
+
 
 function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, Pinwheel.PinwheelPTile})
     t[1].refl ? 1 : -1
 end
-# 3rd iteration in 45 seconds with nf_fie
 using Serialization
-@time nu = autocorrelation(pinwheel(), initial_collar, 5);
-serialize("pinwheel_nu_5", nu)
+@time nu = autocorrelation(pinwheel(), initial_collar, 4);
+# serialize("pinwheel_nu_5", nu)
+
 
 nu = deserialize("pinwheel_nu_5")
 nu_arr = collect(nu)
+using LinearAlgebra
 maximum(norm.(Pinwheel.embed_float.(keys(nu))))
 
-rs = zeros(length(nu_arr))
-freqs = zeros(length(nu_arr))
-for j in eachindex(nu_arr)
-    g, freq = nu_arr[j]
-    rs[j] = abs(Pinwheel.embed_float(g))
-    freqs[j] = freq
+function window_bump(r :: Float64)
+    if 1 <= r
+        return 0
+    else
+        return exp(-1/(1-r^2))
+    end
+    # integral = 0.46651254959873767
 end
+I_bump = 0.46651239317832216
 
-xs = 0.05:0.01:10
-ys = zeros(length(xs))
-
-using Bessels
-using AccurateArithmetic
-@time for i=eachindex(xs)
-    ys[i] = sum_kbn(rs.*freqs.*besselj0.(2*pi*rs*xs[i]))
+Rs = 1:0.1:20
+vars = zeros(length(Rs))
+@time for (g, freq) in nu_arr
+    r = norm(Pinwheel.embed_float(g))
+    bump_weight = window_bump.(r./Rs)
+    vars += freq*bump_weight
 end
+vars -= I_bump.*(Rs.^2)
 
 using Plots
-plot(xs,ys)
-plot!(xs,xs*0)
+
+plot(Rs,log.(abs.(vars)))
+plot!(Rs,log.(abs.(vars)))
+vars_5 = vars

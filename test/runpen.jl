@@ -11,25 +11,28 @@ const L = Penrose.Qζ
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
 
-width = 800
-height = 800
+width = 1200
+height = 1200
 sc = 20
 @pdf begin
+    #setantialias(6)
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
     tiling = substitute(penrose(), [first_tile], 10, Penrose.in_bounds, (w=width/sc, h=height/sc))
     #tiling = initial_collar
     println(typeof(tiling))
 
-
+    for tile in tiling
+        origin()
+        draw(tile, sc,  "grey", :stroke)
+        #rect(Point(-0.5,-0.01), 0.4,0.02, action=:fill)
+        #rect(Point(-0.5,-0.1), 0.02,0.1, action=:fill)
+    end
     for tile in tiling
         origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
-        origin()
-        setline(0.5)
-        setopacity(0.4)
-        draw(tile, sc, "black", :stroke)
-        setopacity(1)
+        #rect(Point(-0.5,-0.01), 0.4,0.02, action=:fill)
+        #rect(Point(-0.5,-0.1), 0.02,0.1, action=:fill)
     end
     origin()
     setline(1)
