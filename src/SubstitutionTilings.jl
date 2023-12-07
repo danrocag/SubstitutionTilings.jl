@@ -18,6 +18,8 @@ using .NumFields
 #using .Heisenberg
 include("systems/penrose.jl")
 using .Penrose
+include("systems/ammann-beenker.jl")
+using .AmmannBeenker
 include("systems/pinwheel.jl")
 using .Pinwheel
 #include("systems/heisenberg-improper.jl")

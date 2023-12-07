@@ -31,8 +31,11 @@ sc = 20
     for tile in tiling
         origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
-        #rect(Point(-0.5,-0.01), 0.4,0.02, action=:fill)
-        #rect(Point(-0.5,-0.1), 0.02,0.1, action=:fill)
+        origin()
+        setline(0.5)
+        setopacity(0.4)
+        draw(tile, sc, "#DD93FC", :stroke)
+        setopacity(1)
     end
     origin()
     setline(1)

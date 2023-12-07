@@ -410,7 +410,7 @@ The values are accurate as long as `depth` is high enough to force collars.
 
 `collar_in` should be implemented.
 """
-function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights=nothing) where {G, D, L}
+function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth) where {G, D, L}
     (collars, Sc) = total_collaring(S, initial_collar)
     n = length(collars)
     A_tr = transition_matrix(Sc, 1:n)
@@ -425,14 +425,48 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
     end
 
     measure = Dict{G, Float64}()
-    if isnothing(weights)
-        for label in 1:n
-            domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
-            forced_domain = substitute(S, collars[label], depth-1)
+    for label in 1:n
+        domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+        forced_domain = substitute(S, collars[label], depth-1)
 
-            for tile in domain
-                translated_f_domain = inv(tile[1]) * forced_domain
-                for t in translated_f_domain
+        for tile in domain
+            translated_f_domain = inv(tile[1]) * forced_domain
+            for t in translated_f_domain
+                g = t[1]
+                if haskey(measure, g)
+                    measure[g] += v_PF[label]/λ_PF^(depth-1)
+                else
+                    measure[g] = v_PF[label]/λ_PF^(depth-1)
+                end
+            end
+        end
+    end
+    return measure
+end
+function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth, radius) where {G, D, L}
+    (collars, Sc) = total_collaring(S, initial_collar)
+    n = length(collars)
+    A_tr = transition_matrix(Sc, 1:n)
+    (eigenvalues, eigenvectors) = eigen(A_tr)
+    λ_PF = eigenvalues[n]
+    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
+
+    ptiles = unique([collar[id(G)] for collar in collars])
+    collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
+    for i = 1:n
+        push!(collars_of_ptile[collars[i][id(G)]], i)
+    end
+
+    measure = Dict{G, Float64}()
+    R = radius*(depth-1)
+    for label in 1:n
+        domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+        forced_domain = substitute(S, collars[label], depth-1)
+
+        for tile in domain
+            translated_f_domain = inv(tile[1]) * forced_domain
+            for t in translated_f_domain
+                if norm(t[1]) < R
                     g = t[1]
                     if haskey(measure, g)
                         measure[g] += v_PF[label]/λ_PF^(depth-1)
@@ -442,25 +476,42 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights
                 end
             end
         end
-    else
-        for label in 1:n
-            domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
-            forced_domain = substitute(S, (collars[label]), depth-1)
+    end
+    return measure
+end
+"""
+function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth; weights) where {G, D, L}
+    (collars, Sc) = total_collaring(S, initial_collar)
+    n = length(collars)
+    A_tr = transition_matrix(Sc, 1:n)
+    (eigenvalues, eigenvectors) = eigen(A_tr)
+    λ_PF = eigenvalues[n]
+    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
 
-            for tile in domain
-                translated_f_domain = inv(tile[1]) * forced_domain
-                for t in translated_f_domain
-                    g = t[1]
-                    if haskey(measure,g)
-                        measure[g] += v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
-                    else
-                        measure[g] = v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
-                    end
+    ptiles = unique([collar[id(G)] for collar in collars])
+    collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
+    for i = 1:n
+        push!(collars_of_ptile[collars[i][id(G)]], i)
+    end
+
+    measure = Dict{G, Float64}()
+    for label in 1:n
+        domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
+        forced_domain = substitute(S, (collars[label]), depth-1)
+
+        for tile in domain
+            translated_f_domain = inv(tile[1]) * forced_domain
+            for t in translated_f_domain
+                g = t[1]
+                if haskey(measure,g)
+                    measure[g] += v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
+                else
+                    measure[g] = v_PF[label]/λ_PF^(depth-1)*weights(tile[2], t)
                 end
             end
         end
     end
     return measure
 end
-
+"""
 end
