@@ -4,7 +4,6 @@ export He, heis, hn, left, right
 
 using Luxor
 import Luxor.transform
-using Colors
 using StructEquality
 
 QQ = Rational{Int}

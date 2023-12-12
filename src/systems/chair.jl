@@ -4,7 +4,6 @@ export chair, chair_system, ChairElem, ChairPTile
 
 using Luxor
 import Luxor.transform
-using Colors
 using StructEquality
 
 using ...CoreDefs
