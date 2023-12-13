@@ -92,7 +92,7 @@ initial_collar = collar_in(Dict(init),init[2][1])
 end 800 800
 
 
-nu = @time autocorrelation(chair_system, initial_collar, 6)
+nu = @time autocorrelation(chair_system, initial_collar, 6, 1)
 k = collect(keys(nu))
 R = ChairElem(1,0,0)
 k[200]

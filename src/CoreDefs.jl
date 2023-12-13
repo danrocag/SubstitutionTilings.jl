@@ -448,8 +448,8 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth, radius)
     n = length(collars)
     A_tr = transition_matrix(Sc, 1:n)
     (eigenvalues, eigenvectors) = eigen(A_tr)
-    λ_PF = eigenvalues[n]
-    v_PF = eigenvectors[:,n]/sum(eigenvectors[:,n])
+    λ_PF = real(eigenvalues[n])
+    v_PF = real(eigenvectors[:,n]/sum(eigenvectors[:,n]))
 
     ptiles = unique([collar[id(G)] for collar in collars])
     collars_of_ptile = Dict([ptile => Int[] for ptile in ptiles])
@@ -458,7 +458,7 @@ function autocorrelation(S :: SubSystem{G, D, L}, initial_collar, depth, radius)
     end
 
     measure = Dict{G, Float64}()
-    R = radius*(depth-1)
+    R = radius
     for label in 1:n
         domain = substitute(S, [id(G) => center_label(collars[label])], depth-1)
         forced_domain = substitute(S, collars[label], depth-1)

@@ -8,6 +8,8 @@ using StructEquality
 using ...CoreDefs
 using ...NumFields
 
+using LinearAlgebra
+
 @NumFields.simple_number_field_concrete Qθ [-36,0,8,0] θ
 Base.promote_rule(::Type{Qθ}, ::Type{<:Integer}) = Qθ
 
@@ -58,6 +60,9 @@ end
 
 function embed_float(x  :: PinwheelElem)
     embed_float(x.z)
+end
+function LinearAlgebra.norm(x :: PinwheelElem)
+    norm(embed_float(x))
 end
 
 function Base.:*(g :: PinwheelElem, h :: PinwheelElem)
