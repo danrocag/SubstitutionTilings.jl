@@ -1,7 +1,7 @@
 module SubstitutionTilings
 
 
-export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SubSystem, id, vertices, in_border, transition_matrix, DGroupElem
+export substitute, dilate, empirical_frequency, draw, embed_aff, Tiling, SubSystem, id, vertices, in_border, transition_matrix, DGroupElem, substitute_iter
 export transition_matrix
 export collar_in, is_interior, frequency, total_collaring, total_collaring, UnrecognizedCollar
 export vertices, @collar_in_from_vertices
