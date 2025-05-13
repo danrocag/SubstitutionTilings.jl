@@ -3,7 +3,7 @@ using SubstitutionTilings.CoreDefs
 using StructEquality
 using LinearAlgebra
 
-@def_structequal struct TM <: DGroupElem
+@struct_hash_equal_isequal struct TM <: DGroupElem
     a::Int
 end
 

@@ -9,7 +9,7 @@ using StructEquality
 using ...CoreDefs
 
 
-@def_structequal struct ChairElem <: DGroupElem
+@struct_hash_equal_isequal struct ChairElem <: DGroupElem
     angle :: Int # should be 0 ≤ i ≤ 3
     x :: Int
     y :: Int

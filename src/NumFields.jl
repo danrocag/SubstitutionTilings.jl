@@ -3,7 +3,6 @@ module NumFields
 export embed_field, reduce!, NumField
 
 using StaticArrays
-using StructEquality
 
 abstract type NumField <: Number end
 function embed_field end

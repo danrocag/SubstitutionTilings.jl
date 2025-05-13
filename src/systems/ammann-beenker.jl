@@ -33,7 +33,7 @@ function Base.://(x :: Qζ, y :: Qζ)
     return x*alg_conj*norm.denom//norm.coeffs[1]
 end
 
-@def_structequal struct ABElem <: DGroupElem
+@struct_hash_equal_isequal struct ABElem <: DGroupElem
     rot :: Int
     refl :: Bool
     z :: Qζ

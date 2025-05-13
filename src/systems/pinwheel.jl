@@ -51,7 +51,7 @@ end
 const ζ = (i-2)//sq5
 const ζ_inv = Qθ(1)//ζ
 
-@def_structequal struct PinwheelElem <: DGroupElem
+@struct_hash_equal_isequal struct PinwheelElem <: DGroupElem
     rot_ζ :: Int
     rot_i :: Int
     refl :: Bool

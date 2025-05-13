@@ -11,7 +11,7 @@ using LinearAlgebra
 @NumFields.simple_number_field_concrete Qτ [1,1] τ
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
 
-@def_structequal struct FibElem <: DGroupElem
+@struct_hash_equal_isequal struct FibElem <: DGroupElem
     a :: Qτ
 end
 

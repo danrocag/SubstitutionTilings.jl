@@ -4,6 +4,9 @@ using Test
 
 using Luxor
 
+using LinearAlgebra
+using Plots
+
 
 @pdf begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
@@ -90,6 +93,36 @@ initial_collar = collar_in(Dict(init),init[2][1])
         draw(tile, sc, "black", :stroke)
     end
 end 800 800
+
+
+N = 3
+
+@time supertile = substitute(chair_system, [chair(0,0,0)], N)
+sizeof(supertile)/2.0^30
+
+xs = [t[1].x/2.0^N for t in supertile]
+ys = [t[1].y/2.0^N for t in supertile]
+#weights = [real((-1)^t[1].angle) for t in supertile]
+K = 6
+weights = [imag((im)^t[1].angle) for t in supertile].*2^K./2^N
+
+histogram2d(xs, ys, bins=2^K, aspect_ratio=1, weights=weights,
+    show_empty_bins=true,
+    size=(2^10,2^10),
+    color=:bam10)
+
+
+N = 12
+sums = zeros(ComplexF64, N)
+for n=1:N
+    supertile = substitute(chair_system, [chair(0,0,0)], n)
+    xs = [t[1].x/2.0^n for t in supertile]
+    ys = [t[1].y/2.0^n for t in supertile]
+    weights = [im^(t[1].angle) for t in supertile]
+    sums[n] = sum(exp.(-2*π*im*xs*1e-5).*weights)
+end
+sums
+plot(abs.(sums)./(2.0.^(1:N)))
 
 
 nu = @time autocorrelation(chair_system, initial_collar, 6, 1)

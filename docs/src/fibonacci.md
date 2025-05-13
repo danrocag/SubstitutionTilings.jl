@@ -26,7 +26,7 @@ Now we define the coordinate group of the tiles
 and the prototiles
 
 ```@example 1
-@def_structequal struct FibElem <: DGroupElem
+@struct_hash_equal_isequal struct FibElem <: DGroupElem
     a :: Qτ
 end
 

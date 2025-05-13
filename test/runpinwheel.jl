@@ -11,10 +11,10 @@ selfsimilar in substitute(pinwheel(), [selfsimilar], 2)
 w = 800
 h = 800
 sc = 30
-@pdf begin
+@draw begin
     colors = ["#DD93FC", "#E7977A",]
 
-    tiling = substitute(pinwheel(), [selfsimilar], 6)
+    tiling = substitute(pinwheel(), [selfsimilar], 4)
     setline(1)
 
     for tile in tiling
@@ -24,8 +24,9 @@ sc = 30
         setline(1)
         setopacity(0.5)
         draw(tile, sc, "black", :stroke)
+        setopacity(1)
     end
-end w h "pinwheel-tiling"
+end w h #"pinwheel-tiling"
 
 width = 600
 height = 200
@@ -61,7 +62,7 @@ initial_collar = inv(selfsimilar[1])*collar_in(Dict(substitute(pinwheel(), [self
 
 vertex_star = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,1,0,-i)])
 vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0,2,1,Qθ(0))])
-@time frequency(pinwheel(), initial_collar, vertex_star, 3)
+@time frequency(pinwheel(), initial_collar, vertex_star, 2)
 @time frequency(pinwheel(), initial_collar, vertex_star_2, 2) # 4x bigger than in Baake-Grimm because every tile gets counted
 @time Pinwheel.CoreDefs.frequencies(pinwheel(), initial_collar, [vertex_star, vertex_star, vertex_star, vertex_star, vertex_star], 2)
 
@@ -121,8 +122,8 @@ function balanced(_ :: Pinwheel.PinwheelPTile, t :: Pair{Pinwheel.PinwheelElem, 
     t[1].refl ? 1 : -1
 end
 using Serialization
-@time nu = autocorrelation(pinwheel(), initial_collar, 4);
-# serialize("pinwheel_nu_5", nu)
+@time nu = autocorrelation(pinwheel(), initial_collar, 6);
+serialize("pinwheel_nu_6", nu)
 
 
 nu = deserialize("pinwheel_nu_5")
@@ -154,3 +155,10 @@ using Plots
 plot(Rs,log.(abs.(vars)))
 plot!(Rs,log.(abs.(vars)))
 vars_5 = vars
+
+coords = [Pinwheel.embed_float(g) for (g, freq) in nu_small]
+freqs = [20*freq for (g, freq) in nu_small]
+scatter(coords, xlims=(-5,5), ylims=(-5,5))
+xs = real.(coords)
+ys = imag.(coords)
+histogram2d(xs, ys, weights=freqs, xlims=(-5,5), ylims=(-5,5),nbins=50)

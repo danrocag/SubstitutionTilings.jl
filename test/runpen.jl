@@ -1,26 +1,27 @@
 using SubstitutionTilings
 using SubstitutionTilings.Penrose
-import SubstitutionTilings.Penrose: ψ
+import SubstitutionTilings.Penrose: ψ, ϕ, ζ
 using Plots
 using Luxor
 using Bessels
 
 const L = Penrose.Qζ
 
-
+Penrose.embed_nf(ζ)
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
+
+@draw juliacircles()
 
 width = 1200
 height = 1200
 sc = 20
-@pdf begin
+@draw begin
     #setantialias(6)
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
     tiling = substitute(penrose(), [first_tile], 10, Penrose.in_bounds, (w=width/sc, h=height/sc))
     #tiling = initial_collar
-    println(typeof(tiling))
 
     for tile in tiling
         origin()
@@ -40,12 +41,14 @@ sc = 20
     origin()
     setline(1)
     #draw(first_tile, sc/0.618, "black", :stroke)
-end width height "penrose-tiling.pdf"
+end width height
+
+
 
 width = 800
 height = 800
 sc = 60
-@pdf begin
+@draw begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     #tiling = initial_collar
     println(typeof(tiling))
@@ -54,17 +57,18 @@ sc = 60
     for (pos, n) in quadrants
         println(n)
         first_tile = n % 2 == 0 ? hkite() : hdart()
-        tiling = substitute(penrose(), [first_tile], div(n,2))
+        tiling = substitute(penrose(), [first_tile], div(n-1,2))
+        
         for tile in tiling
             origin()
-            translate(pos)
+            Luxor.translate(pos)
             scale(sc)
             sethue(colors[Penrose.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
             origin()
             sethue("black")
-            translate(pos)
+            Luxor.translate(pos)
             scale(sc)
             transform(embed_aff(tile[1]))
             setline(1)
@@ -72,8 +76,10 @@ sc = 60
             draw(tile[2], :stroke)
             setopacity(1)
         end
+        origin()
+        circle(pos, 1, :fill)
     end
-end width height "penrose-rule"
+end width height #"penrose-rule"
 
 width = 1280*2
 height = 800*2
@@ -219,8 +225,10 @@ function balanced(_ :: Penrose.PenrosePTile, t :: Pair{Penrose.PenroseElem, Penr
     t[1].refl ? 1 : -1
 end
 # 3rd iteration in 45 seconds with nf_field
-@time nu = autocorrelation(penrose(), initial_collar, 9);
-nu_arr = collect(nu)
+#@time nu = autocorrelation(penrose(), initial_collar, 9);
+using Serialization
+nu = deserialize("penrose_nu_9")
+nu_arr = collect(nu)y
 rs = zeros(length(nu_arr))
 freqs = zeros(length(nu_arr))
 for j in eachindex(nu_arr)
@@ -229,14 +237,21 @@ for j in eachindex(nu_arr)
     freqs[j] = freq
 end
 
+using AccurateArithmetic
 maximum(abs.(Penrose.embed_float.(keys(nu))))
-xs = 0.05:0.001:1
+xs = 0.2:0.005:1
 ys = zeros(length(xs))
 @time for i=eachindex(xs)
     ys[i] = sum_kbn(freqs.*besselj0.(2*pi*rs*xs[i]))
 end
 plot(xs,ys)
 plot!(xs,xs*0)
+zs = zeros(length(xs))
+@time for i=eachindex(xs)
+    zs[i] = sum_kbn(ys[1:i])
+end
+
+plot(log.(zs)./log.((xs)))
 empirical_frequency(pentagon, tiling)
 Penrose.frequency(pentagon, 4)
 @testset "Frequencies" begin
@@ -246,3 +261,39 @@ Penrose.frequency(pentagon, 4)
     @test Penrose.frequency(pentagon, 5) == 7*ψ - 4
     @test Penrose.frequency(pentagon, 6) == 7*ψ - 4
 end
+
+## Calculating window
+
+function τ(x :: Qζ)
+    galois_gen(x)
+end
+
+function τ(g :: PenroseElem)
+    PenroseElem(mod(g.rot*3, 10), g.refl, τ(g.z))
+end
+
+function τ(t :: Pair{PenroseElem, SubstitutionTilings.Penrose.PenrosePTile})
+    τ(t[1]) => t[2]
+end
+
+first_tile ∈ substitute(penrose(), [first_tile], 8)
+
+window_approximant = τ.(substitute(penrose(), [first_tile], 12))
+center_slice = [Penrose.embed_float(t[1]) for t=window_approximant if (t[1].refl && t[2]==SubstitutionTilings.Penrose.Hdart)]
+
+scatter(center_slice, xlim=(-3,3), ylim=(-3,3), aspect_ratio=:equal)
+
+
+## Empirical diffraction
+centers = [Penrose.embed_float(t[1]) for t=substitute(penrose(), [hkite()], 9)]
+
+function erf(t)
+    exp(-t^2)
+end
+
+using AccurateArithmetic
+using LinearAlgebra
+xs = 0:0.0001:1
+@time ys = 2*π*sum(besselj0.(π*norm(t1-t2)*xs) for t1=centers for t2=centers)
+cutoff = 15
+plot(xs[cutoff:end], ys[cutoff:end])
