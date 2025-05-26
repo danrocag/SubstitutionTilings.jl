@@ -1,6 +1,8 @@
 using SubstitutionTilings
 using SubstitutionTilings.AmmannBeenker
 using Luxor
+import Luxor: translate
+
 
 L = AmmannBeenker.L
 

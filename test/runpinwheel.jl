@@ -2,6 +2,7 @@ using SubstitutionTilings
 using SubstitutionTilings.Pinwheel
 
 using Luxor
+import Luxor: translate
 
 
 Qθ = Pinwheel.Qθ

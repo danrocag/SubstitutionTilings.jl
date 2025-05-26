@@ -3,6 +3,7 @@ using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ, ϕ, ζ
 using Plots
 using Luxor
+import Luxor: translate
 using Bessels
 
 const L = Penrose.Qζ
