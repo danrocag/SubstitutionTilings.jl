@@ -53,17 +53,17 @@ function SubstitutionTilings.draw(ptile::FibTile, action)
     fτ = (1+sqrt(5))/2
     if ptile == A
         return Luxor.poly([
-            Point(-fτ*0.49,-10),
-            Point(-fτ*0.49,10),
-            Point(fτ*0.49,10),
-            Point(fτ*0.49,-10)
+            Point(-fτ*0.5,-10),
+            Point(-fτ*0.5,10),
+            Point(fτ*0.5,10),
+            Point(fτ*0.5,-10)
         ], close = true, action)
     else
         return Luxor.poly([
-            Point(-0.49,-10),
-            Point(-0.49,10),
-            Point(0.49,10),
-            Point(0.49,-10)
+            Point(-0.5,-10),
+            Point(-0.5,10),
+            Point(0.5,10),
+            Point(0.5,-10)
         ], close = true, action)
     end
 end
@@ -79,7 +79,7 @@ end
 width = 800
 height = 30
 sc = 30
-@pdf begin
+@svg begin
     colors = ["#DD93FC", "#E7977A"]
     patch = [FibElem(-τ//2) => A, FibElem(τ//2) => A]
     tiling = substitute(fib, patch, 5)
@@ -88,6 +88,8 @@ sc = 30
     for tile in tiling
         origin()
         draw(tile, sc, colors[color(tile)], :fill)
+        sethue("black")
+        draw(tile[2], :stroke)
     end
 
     origin()
@@ -127,7 +129,7 @@ collars
 width = 800
 height = 200
 sc = 110
-@pdf begin
+@svg begin
     colors = ["#DD93FC", "#E7977A"]
     quadrants = Tiler(width, height, 2, 2, margin=0)
 
@@ -137,7 +139,7 @@ sc = 110
         tiling = substitute(fib, [first_tile], (n-1)%2)
         for tile in tiling
             origin()
-            translate(pos)
+            Luxor.translate(pos)
             scale(sc)
             box(O, 1000, 0.5, :clip)
             sethue(colors[color(tile)])

@@ -8,7 +8,7 @@ L(1)
 width = 400
 height = 400
 sc = 40
-@pdf begin
+@svg begin
     colors =  ["#AFB1E4", "#E0CA6C", "#948238"]
     quadrants = Tiler(width, height, 2, 2, margin=5)
 
@@ -23,6 +23,9 @@ sc = 40
             scale(sc)
             transform(embed_aff(ABElem(0,0,L(0))*tile[1]))
             draw(tile[2], :fill)
+            sethue("black")
+            setline(0.5)
+            draw(tile[2], :stroke)
         end
         
     end
@@ -30,8 +33,9 @@ end width height "ab-rule.pdf"
 
 width = 800
 height = 800
-sc = 40
-@pdf begin
+sc = 30
+@svg begin
+    # rect(-width/2, -height/2, width/2, height/2, :clip)
     background("black")
     colors = ["#AFB1E4", "#E0CA6C", "#948238"]
     first_tile = rhomb()
@@ -43,4 +47,6 @@ sc = 40
         draw(tile, sc, colors[color(tile)], :fill)
         origin()
     end
-end width height "ab-tiling.pdf"
+    origin()
+    
+end width height "ab-tiling"
