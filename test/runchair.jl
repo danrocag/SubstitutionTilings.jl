@@ -3,6 +3,7 @@ using SubstitutionTilings.Chair
 using Test
 
 using Luxor
+import Luxor: translate
 
 using LinearAlgebra
 using Plots
@@ -52,6 +53,44 @@ sc = 20
         end
     end
 end width height "chair-rule"
+
+width = 260
+height = 260
+sc = 20
+@pdf begin
+    colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
+    quadrants = Tiler(width, height, 2, 2, margin=5)
+
+    for (pos, n) in quadrants
+        first_tile =  ChairElem(2-n,0,0)*chair(0,0,0)
+        tiling = [first_tile]
+        for tile in tiling
+            origin()
+            translate(pos)
+            scale(sc)
+            sethue(colors[tile[1].angle+1])
+            setopacity(1)
+            transform(embed_aff(tile[1]))
+            draw(tile[2], :fill)
+
+            origin()
+            translate(pos)
+            setline(0.1)
+            setopacity(0.3)
+            draw(tile, sc, "black", :stroke)
+
+
+            origin()
+            translate(pos)
+            scale(sc)
+            sethue("black")
+            setopacity(1)
+            transform(embed_aff(tile[1]))
+            translate(-1,-1)
+            circle(O, 0.1, :fill)
+        end
+    end
+end width height "chair-prototiles"
 
 @draw begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
