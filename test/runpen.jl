@@ -12,8 +12,6 @@ Penrose.embed_nf(ζ)
 #collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
 #length(collars)
 
-@draw juliacircles()
-
 width = 1200
 height = 1200
 sc = 20
@@ -46,19 +44,26 @@ end width height
 
 
 
-width = 800
+width = 1000
 height = 800
-sc = 60
-@draw begin
+sc = 100
+@pdf begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
-    #tiling = initial_collar
-    println(typeof(tiling))
+    
+    t = Table([400,400], [250,300,250])
     quadrants = Tiler(width, height, 2, 2, margin=5)
 
-    for (pos, n) in quadrants
-        println(n)
-        first_tile = n % 2 == 0 ? hkite() : hdart()
-        tiling = substitute(penrose(), [first_tile], div(n-1,2))
+    for (pos, n) in t
+        if t.currentcol == 2
+            origin()
+            translate(pos)
+            sethue("black")
+            Luxor.arrow(O, Point(100, 0))
+            continue
+        end
+
+        first_tile = t.currentrow == 1 ? hkite() : hdart()
+        tiling = substitute(penrose(), [first_tile], t.currentcol == 1 ? 0 : 1)
         
         for tile in tiling
             origin()
@@ -67,6 +72,7 @@ sc = 60
             sethue(colors[Penrose.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
+
             origin()
             sethue("black")
             Luxor.translate(pos)
@@ -76,11 +82,17 @@ sc = 60
             setopacity(0.5)
             draw(tile[2], :stroke)
             setopacity(1)
+
+            origin()
+            Luxor.translate(pos)
+            scale(sc)
+            transform(embed_aff(tile[1]))
+            Luxor.translate(-.6,-.4)
+            circle(O, 0.03, :fill)
+
         end
-        origin()
-        circle(pos, 1, :fill)
     end
-end width height #"penrose-rule"
+end width height "penrose-rule"
 
 width = 1280*2
 height = 800*2
