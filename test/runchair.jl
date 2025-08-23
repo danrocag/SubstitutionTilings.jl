@@ -31,18 +31,28 @@ height = 300
 sc = 20
 @pdf begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
-    quadrants = Tiler(width, height, 1, 2, margin=5)
+    
+    t = Table([300], [250,100,250])
+    quadrants = Tiler(width, height, 2, 2, margin=5)
 
-    for (pos, n) in quadrants
+    for (pos, n) in t
+
+        if t.currentcol == 2
+            origin()
+            translate(pos)
+            sethue("black")
+            Luxor.arrow(Point(-50, 0), Point(50, 0))
+            continue
+        end
+
         first_tile = chair(0,0,0)
-        tiling = substitute(chair_system, [first_tile], n-1)
+        tiling = substitute(chair_system, [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             println(typeof(tile))
             origin()
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
-            setopacity(1)
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
             origin()
@@ -50,9 +60,50 @@ sc = 20
             setline(0.1)
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
+            setopacity(1)
         end
     end
 end width height "chair-rule"
+
+width = 1000
+height = 300
+sc = 30
+@pdf begin
+    colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
+    
+    t = Table([300], [250,100,250,100,300])
+    quadrants = Tiler(width, height, 2, 2, margin=5)
+
+    for (pos, n) in t
+
+        if t.currentcol in [2,4]
+            origin()
+            translate(pos)
+            sethue("black")
+            Luxor.arrow(Point(-50, 0), Point(50, 0))
+            continue
+        end
+
+        first_tile = chair(0,0,0)
+        n = [0, 0,1,0,2][t.currentcol]
+        tiling = substitute(chair_system, [first_tile], n)
+        for tile in tiling
+            println(typeof(tile))
+            origin()
+            translate(pos)
+            scale(sc/2^n)
+            sethue(colors[tile[1].angle+1])
+            transform(embed_aff(tile[1]))
+            draw(tile[2], :fill)
+            origin()
+            translate(pos)
+            setline(0.1)
+            setopacity(0.3)
+            draw(tile, sc/(2^n), "black", :stroke)
+            setopacity(1)
+        end
+    end
+end width height "chair-rule-3"
 
 width = 260
 height = 260

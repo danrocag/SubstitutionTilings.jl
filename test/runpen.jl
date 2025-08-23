@@ -83,10 +83,12 @@ sc = 100
             draw(tile[2], :stroke)
             setopacity(1)
 
-            if t.currentcol == 1
             origin()
-            circle(pos, 3, :fill)
-            end
+            Luxor.translate(pos)
+            scale(sc)
+            transform(embed_aff(tile[1]))
+            Luxor.translate(-.6,-.4)
+            circle(O, 0.03, :fill)
 
         end
     end
