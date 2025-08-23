@@ -23,6 +23,12 @@ using Plots
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
+        origin()
+        scale(sc)
+        translate(tile[1].x, tile[1].y)
+        sethue("black")
+        setopacity(1)
+        circle(O, 0.1, :fill)
     end
 end 800 800 "chair-tiling"
 
@@ -54,12 +60,12 @@ sc = 20
     end
 end width height "chair-rule"
 
-width = 260
-height = 260
+width = 520
+height = 130
 sc = 20
 @pdf begin
     colors = ["#3CD0E6", "#CA7EE6", "#E6873C", "#B4E647"]
-    quadrants = Tiler(width, height, 2, 2, margin=5)
+    quadrants = Tiler(width, height, 1, 4, margin=5)
 
     for (pos, n) in quadrants
         first_tile =  ChairElem(2-n,0,0)*chair(0,0,0)
@@ -86,7 +92,6 @@ sc = 20
             sethue("black")
             setopacity(1)
             transform(embed_aff(tile[1]))
-            translate(-1,-1)
             circle(O, 0.1, :fill)
         end
     end
