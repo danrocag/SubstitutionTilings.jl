@@ -30,15 +30,24 @@ sc = 30
 end w h #"pinwheel-tiling"
 
 width = 600
+
 height = 200
 sc = 40
 @pdf begin
     colors = ["#DD93FC", "#E7977A",]
-    quadrants = Tiler(width, height, 1, 2, margin=5)
+    t = Table([200], [250,100,250])
 
-    for (pos, n) in quadrants
+
+    for (pos, n) in t
+        if t.currentcol == 2
+            origin()
+            translate(pos)
+            sethue("black")
+            Luxor.arrow(Point(-100,0), Point(0, 0))
+            continue
+        end
         first_tile = Pinwheel.PinwheelElem(0,0,0,Qθ(-1)-i//2)*wheel()
-        tiling = substitute(pinwheel(), [first_tile], n-1)
+        tiling = substitute(pinwheel(), [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             origin()
             translate(pos)
