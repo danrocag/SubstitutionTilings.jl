@@ -229,9 +229,6 @@ macro simple_number_field_concrete(name, field_gen_coeffs, generator)
             return ($(esc(name))(x.coeffs*denominator(y),x.denom*numerator(y)))
         end
 
-
-
-
         # Universal property
         function NumFields.embed_field(map_coeff, map_gen, x :: $(esc(name)))
             result = zero(typeof(map_gen))

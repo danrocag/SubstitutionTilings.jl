@@ -1,4 +1,6 @@
-# The Fibonacci tiling
+# Examples
+
+## The Fibonacci substitution rule
 
 In this page, we explain how we can define a substitution tiling, and use this library to generate pictures of it.
 We do this in the example of the Fibonacci tiling.

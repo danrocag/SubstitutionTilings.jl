@@ -2,3 +2,4 @@
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 StructEquality = "6ec83bb0-ed9f-11e9-3b4c-2b04cb4e219c"
+SubstitutionTilings = "06dea426-5f87-4913-a8ed-357464d2b34e"

@@ -133,9 +133,17 @@ sc = 5
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
             setopacity(1)
+            origin()
+            translate(pos)
+            scale(sc)
+            translate(tile[1].x, tile[1].y)
+            sethue("black")
+            circle(O, .5, :stroke)
+            fontsize(1)
+            Luxor.text(string(tile[1].angle+1), halign=:center, valign=:middle)
         end
     end
-end width height "chair-rule-4"
+end width height "chair-rule-4-numbered"
 
 width = 600
 height = 300
