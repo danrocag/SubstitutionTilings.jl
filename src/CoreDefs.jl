@@ -1,6 +1,6 @@
 module CoreDefs
 
-export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem, substitute_iter
+export SubSystem, substitute, check_subset, empirical_frequency, dilate, id, draw, embed_aff, DGroupElem
 export collar_in, is_interior, frequency, total_collaring, UnrecognizedCollar, transition_matrix
 export vertices, @collar_in_from_vertices
 export embed_center
@@ -153,21 +153,6 @@ function substitute_df_inner!(S, n, tile, result, in_bounds = nothing, window=no
         else
             for new_tile in S.sub[tile[2]]
                 substitute_df_inner!(S, n-1, (dilate(S.λ, tile[1]) * new_tile), result, in_bounds, window)
-            end
-        end
-    end
-end
-
-function substitute_iter(S, tiling, n, in_bounds=nothing, window=nothing)
-    for tile in tiling
-        if isnothing(in_bounds) || in_bounds(tile, n, window)
-            if n == 0
-                return [tile]
-            else
-                return Iterators.flatten(
-                    (substitute_iter(S, [dilate(S.λ, tile[1]) * new_tile], n-1, in_bounds, window)
-                    for new_tile in S.sub[tile[2]])
-                )
             end
         end
     end
@@ -362,6 +347,7 @@ Requires `collar_in` to be implemented for the given substitution system.
 """
 function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where {G, D, L}
     (collars, Sc) = total_collaring(S, initial_collar)
+    println(total_collaring)
     n = length(collars)
     A_tr = transition_matrix(Sc, 1:n)
     (eigenvalues, eigenvectors) = eigen(A_tr)
@@ -387,12 +373,15 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
 
     freq = 0.0
     for label in 1:n
-        domain = substitute_iter(Sc, [id(G) => label], depth-1)
-        forced_uncollared_domain = substitute_iter(S, collars[label], depth-1)
+        domain = substitute(Sc, [id(G) => label], depth-1)
+        forced_uncollared_domain = substitute(S, collars[label], depth-1)
 
         for tile in domain
             translated_patch_c = tile[1] * patch_c
             is_subset = true
+            println(translated_patch_c)
+            println(domain)
+            println("Checking subset")
             for (g, (kind, detect)) in translated_patch_c
                 if kind == :interior
                     if (g => detect) ∉ forced_uncollared_domain
@@ -407,6 +396,7 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
                 end
             end
             if is_subset
+                print("Updating frequency")
                 freq += v_PF[label]/λ_PF^(depth-1)
             end
         end
