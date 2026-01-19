@@ -1,6 +1,6 @@
 # SubstitutionTilings
 
-![splash image](penrose.png)
+<img src="penrose.png" width="800" alt="splash image>
 
 [![][docs-development-img]][docs-development-url]
 
