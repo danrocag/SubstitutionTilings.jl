@@ -91,10 +91,12 @@ with scale `sc`, hue `hue` and action p `action`.
 
 """
 function draw(t :: Pair{<:DGroupElem, T}, sc, hue, action :: Symbol) where T
-    scale(sc)
-    sethue(hue)
-    transform(embed_aff(t[1]))
-    draw(t[2], action)
+    @layer begin
+        scale(sc)
+        sethue(hue)
+        transform(embed_aff(t[1]))
+        draw(t[2], action)
+    end
 end
 
 

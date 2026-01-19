@@ -18,14 +18,14 @@ sc = 10
     tiling = substitute(chair_system, init, 6, Chair.in_bounds, (w=width/sc, h=height/sc))
 
     for tile in tiling
-        origin()
+        
         setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
-        origin()
+        
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
-        origin()
+        
         scale(sc)
         translate(tile[1].x, tile[1].y)
         sethue("black")
@@ -45,14 +45,14 @@ end width height "chair-tiling-beamer-total"
     tiling = substitute(chair_system, init, 4, Chair.in_bounds, (w=80, h=80))
 
     for tile in tiling
-        origin()
+        
         setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
-        origin()
+        
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
-        origin()
+        
         scale(sc)
         translate(tile[1].x, tile[1].y)
         sethue("black")
@@ -72,7 +72,7 @@ sc = 10
     for (pos, n) in t
 
         if t.currentcol % 2 == 0
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-0, 0), Point(75, 0))
@@ -83,13 +83,13 @@ sc = 10
         tiling = substitute(chair_system, [first_tile], div(t.currentcol,2))
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
@@ -110,7 +110,7 @@ sc = 5
     for (pos, n) in t
 
         if t.currentcol % 2 == 0
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-0, 0), Point(75, 0))
@@ -121,19 +121,19 @@ sc = 5
         tiling = substitute(chair_system, [first_tile], div(t.currentcol,2))
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
             setopacity(1)
-            origin()
+            
             translate(pos)
             scale(sc)
             translate(tile[1].x, tile[1].y)
@@ -157,7 +157,7 @@ sc = 20
     for (pos, n) in t
 
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-50, 0), Point(50, 0))
@@ -168,13 +168,13 @@ sc = 20
         tiling = substitute(chair_system, [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
@@ -196,7 +196,7 @@ sc = 20
     for (pos, n) in t
 
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-50, 0), Point(50, 0))
@@ -207,13 +207,13 @@ sc = 20
         tiling = substitute(chair_system, [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
@@ -235,7 +235,7 @@ sc = 20
     for (pos, n) in t
 
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-50, 0), Point(50, 0))
@@ -246,20 +246,20 @@ sc = 20
         tiling = substitute(chair_system, [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
             setopacity(1)
             if true
-                origin()
+                
                 translate(pos)
                 scale(sc)
                 translate(tile[1].x, tile[1].y)
@@ -283,7 +283,7 @@ sc = 6
     for (pos, n) in t
 
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-50, 0), Point(50, 0))
@@ -294,7 +294,7 @@ sc = 6
         tiling = substitute(chair_system, [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
             println(typeof(tile))
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
@@ -304,13 +304,13 @@ sc = 6
                 sethue("black")
                 Luxor.box(O,0.5,0.5,:fill)
             end
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
             setopacity(1)
-            origin()
+            
             translate(pos)
             circle(O,1, :fill)
         end
@@ -328,7 +328,7 @@ sc = 20
         first_tile =  ChairElem(n-1,0,0)*chair(0,0,0)
         tiling = [first_tile]
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[tile[1].angle+1])
@@ -336,20 +336,20 @@ sc = 20
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
 
-            origin()
+            
             translate(pos)
             setline(0.1)
             setopacity(0.3)
             draw(tile, sc, "black", :stroke)
 
 
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue("black")
             setopacity(1)
             transform(embed_aff(tile[1]))
-            origin()
+            
             translate(pos)
             scale(sc)
             circle(O, .5, :stroke)
@@ -370,14 +370,14 @@ sc = 15
     w = [1, 3]
     quadrants = Tiler(width, height, 1, 4, margin=5)
     for tile in tiling
-        origin()
+        
         setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
-        origin()
+        
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
-        origin()
+        
         scale(sc)
         translate(tile[1].x, tile[1].y)
         sethue("black")
@@ -396,10 +396,10 @@ end width height "chair-tiling-weight2"
     tiling = initial_collar
 
     for tile in tiling
-        origin()
+        
         setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
-        origin()
+        
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)
@@ -419,10 +419,10 @@ initial_collar = collar_in(Dict(init),init[2][1])
     tiling = collars[3]
 
     for tile in tiling
-        origin()
+        
         setopacity(1)
         draw(tile, sc, colors[tile[1].angle+1], :fill)
-        origin()
+        
         setline(0.1)
         setopacity(0.3)
         draw(tile, sc, "black", :stroke)

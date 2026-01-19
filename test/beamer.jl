@@ -14,16 +14,14 @@ sc = 80
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
     tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    #tiling  = pentagon
     println(typeof(tiling))
     setline(0.1)
 
     for tile in tiling
-        origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
-    origin()
+    
     setline(10)
     draw(first_tile, sc, "black", :stroke)
 end width height
@@ -31,17 +29,16 @@ end width height
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite(0, false, L(0))
     tiling = substitute(penrose(), [first_tile], 12, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    #tiling  = pentagon
     println(typeof(tiling))
     setline(0.1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
     setline(10)
-    origin()
+    
     draw(first_tile, sc, "black", :stroke)
 end width height# "canonical1.png"
 @png begin
@@ -53,7 +50,7 @@ end width height# "canonical1.png"
     setline(0.1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
@@ -64,7 +61,7 @@ end width height# "canonical1.png"
     setline(2)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc*1.618, "black", :stroke)
     end
     setline(10)
@@ -79,7 +76,7 @@ end width height "canonical2.png"
     setline(0.1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
@@ -90,7 +87,7 @@ end width height "canonical2.png"
     setline(2)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc*1.618^2, "black", :stroke)
     end
     setline(10)
@@ -113,7 +110,7 @@ height = 600
         end
         tiling = substitute(penrose(), [first_tile], div(n-1,2),)
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[Penrose.color(tile)])
@@ -131,7 +128,7 @@ end width height
     for (pos, n) in quadrants
         tiling = substitute(penrose(), [first_tile], n,)
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc/1.618^n)
             sethue(colors[Penrose.color(tile)])
@@ -149,7 +146,7 @@ end width height
     for (pos, n) in quadrants
         tiling = substitute(penrose(), [first_tile], n,)
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc/1.618^n)
             sethue(colors[Penrose.color(tile)])
@@ -172,14 +169,14 @@ end width height
         end
         tiling = Penrose.force([first_tile])
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[Penrose.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
         end
-        origin()
+        
         translate(pos)
         scale(sc)
         sethue("black")
@@ -201,14 +198,14 @@ end width height
         end
         tiling = unique(substitute(forced_penrose(), ([first_tile]), 4))
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[Penrose.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
         end
-        origin()
+        
         translate(pos)
         scale(sc*1.618^4)
         sethue("black")
@@ -229,11 +226,11 @@ sc = 80
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
-    origin()
+    
     setline(5)
     draw(first_tile, sc, "black", :stroke)
 end width height
@@ -246,14 +243,14 @@ end width height
     setline(1)
 
     for tile in substitute(penrose(), tiling, 1)
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
-    origin()
+    
     setline(5)
     draw(collect(tiling)[80], sc*1.618, "black", :stroke)
-    origin()
+    
     setline(1)
     draw(first_tile, sc, "black", :stroke)
 end width height
@@ -269,14 +266,14 @@ end width height
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
         draw(tile, sc, "black", :stroke)
     end
-    origin()
+    
     setline(1)
     draw(first_tile, sc, "black", :stroke)
-    origin()
+    
     setline(5)
     draw(preimg_tile, sc*1.618, "black", :stroke)
 end width height

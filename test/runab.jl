@@ -19,7 +19,7 @@ sc = 40
         first_tile = div(n-1,2) == 0 ? rhomb() : square()
         tiling = substitute(ammannbeenker(), [ABElem(0,0,-L(div(n-1,2)*sq2//2))*first_tile], 1-n%2)
         for tile in tiling
-            origin()
+            
             sethue(colors[color(tile)])
             translate(pos)
             scale(sc)
@@ -45,10 +45,10 @@ sc = 30
 
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[color(tile)], :fill)
-        origin()
+        
     end
-    origin()
+    
     
 end width height "ab-tiling"

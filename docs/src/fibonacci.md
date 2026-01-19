@@ -14,7 +14,7 @@ In order to be able to do exact frequency computation,
 we need to work in a group with exact equality.
 We use our own implementation of ``\mathbb{Q}(\tau)``,
 where ``\tau = \frac{1 + \sqrt{5}}{2}``.
-The libraries `Nemo.jl` and `Hecke.jl` provide implementations of number fields.
+The libraries `Nemo.jl` and `Hecke.jl` provide ready-to-use implementations of number fields.
 
 ```@example 1
 using SubstitutionTilings.NumFields
@@ -24,7 +24,7 @@ using StructEquality
 Base.promote_rule(::Type{Qτ}, ::Type{<:Integer}) = Qτ
 ```
 
-Now we define the group of coordinates of the tiles.
+Now we define the group of coordinates of the tiles, which must be a subtype of `DGroupElem`.
 It must implement the operations `*`, `inv` and `dilate`.
 In this case it is just a wrapper around `Qτ`.
 
@@ -99,6 +99,8 @@ function color(tile :: Pair{FibElem,FibTile})
     return (tile[2] == A) ? 1 : 2
 end
 
+using Luxor
+
 width = 800
 height = 20
 sc = 5
@@ -109,7 +111,6 @@ sc = 5
     setline(1)
 
     for tile in tiling
-        origin()
         draw(tile, sc, colors[color(tile)], :fill)
     end
 end width height
@@ -162,7 +163,6 @@ sc = 20
     setline(1)
 
     for tile in tiling
-        origin()
         draw(tile, sc, colors[color(tile)], :fill)
     end
 end width height

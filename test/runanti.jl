@@ -108,13 +108,13 @@ height = 30
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(AT(-div(5^(n),2))*tile, sc, colors[fcolor(tile)], :fillstroke)
         #sethue("black")
         #draw(tile[2], :stroke)
     end
 
-    origin()
+    
     scale(sc)
     sethue("black")
     """Luxor.poly([

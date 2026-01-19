@@ -19,9 +19,9 @@ sc = 30
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
-        origin()
+        
         setline(1)
         setopacity(0.5)
         draw(tile, sc, "black", :stroke)
@@ -39,7 +39,7 @@ sc = 40
 
     for (pos, n) in t
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(Point(-100,0), Point(0, 0))
@@ -48,13 +48,13 @@ sc = 40
         first_tile = Pinwheel.PinwheelElem(0,0,0,Qθ(-1)-i//2)*wheel()
         tiling = substitute(pinwheel(), [first_tile], t.currentcol == 1 ? 0 : 1)
         for tile in tiling
-            origin()
+            
             translate(pos)
             scale(sc)
             sethue(colors[Pinwheel.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
-            origin()
+            
             sethue("black")
             translate(pos)
             scale(sc)
@@ -83,9 +83,9 @@ vertex_star_2 = Dict([wheel(), wheel(0,0,1,Qθ(0)), wheel(0,2,0,Qθ(0)), wheel(0
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
-        origin()
+        
         draw(tile, sc, "black", :stroke)
     end
     setline(2)
@@ -99,9 +99,9 @@ end w h "vertex_star_1.png"
     setline(1)
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
-        origin()
+        
         draw(tile, sc, "black", :stroke)
     end
     setline(2)
@@ -117,9 +117,7 @@ collars, Sc = total_collaring(pinwheel(), initial_collar)
     setline(1)
 
     for tile in tiling
-        origin()
         draw(tile, sc, colors[Pinwheel.color(tile)], :fill)
-        origin()
         draw(tile, sc, "black", :stroke)
     end
     setline(2)

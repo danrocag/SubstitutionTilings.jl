@@ -9,37 +9,25 @@ using Bessels
 const L = Penrose.Qζ
 
 Penrose.embed_nf(ζ)
-#collars = SubstitutionTilings.CoreDefs.collars(penrose(), 6);
-#length(collars)
 
-width = 1200
-height = 1200
-sc = 20
-@draw begin
-    #setantialias(6)
+width = 800
+height = 400
+sc = 10
+@png begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
-    tiling = substitute(penrose(), [first_tile], 10, Penrose.in_bounds, (w=width/sc, h=height/sc))
-    #tiling = initial_collar
+    tiling = substitute(penrose(), [first_tile], 11, Penrose.in_bounds, (w=width/sc, h=height/sc))
 
     for tile in tiling
-        origin()
         draw(tile, sc,  "grey", :stroke)
-        #rect(Point(-0.5,-0.01), 0.4,0.02, action=:fill)
-        #rect(Point(-0.5,-0.1), 0.02,0.1, action=:fill)
     end
     for tile in tiling
-        origin()
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
-        origin()
         setline(0.5)
-        setopacity(0.4)
-        draw(tile, sc, "#DD93FC", :stroke)
+        setopacity(0.2)
+        draw(tile, sc, "#999999", :stroke)
         setopacity(1)
     end
-    origin()
-    setline(1)
-    #draw(first_tile, sc/0.618, "black", :stroke)
 end width height
 
 
@@ -55,7 +43,7 @@ sc = 100
 
     for (pos, n) in t
         if t.currentcol == 2
-            origin()
+            
             translate(pos)
             sethue("black")
             Luxor.arrow(O, Point(100, 0))
@@ -66,14 +54,14 @@ sc = 100
         tiling = substitute(penrose(), [first_tile], t.currentcol == 1 ? 0 : 1)
         
         for tile in tiling
-            origin()
+            
             Luxor.translate(pos)
             scale(sc)
             sethue(colors[Penrose.color(tile)])
             transform(embed_aff(tile[1]))
             draw(tile[2], :fill)
 
-            origin()
+            
             sethue("black")
             Luxor.translate(pos)
             scale(sc)
@@ -83,7 +71,7 @@ sc = 100
             draw(tile[2], :stroke)
             setopacity(1)
 
-            origin()
+            
             Luxor.translate(pos)
             scale(sc)
             transform(embed_aff(tile[1]))
@@ -110,11 +98,11 @@ sc = 400
         setline(1)
     
         for tile in tiling
-            origin()
+            
             Luxor.translate(pos)
             draw(tile, sc, colors[Penrose.color(tile)], :fill)
         end
-        origin()
+        
         Luxor.translate(pos)
         scale(sc)
         setline(2)
@@ -138,11 +126,11 @@ sc = 400
         setline(1)
     
         for tile in tiling
-            origin()
+            
             Luxor.translate(pos)
             draw(tile, sc, colors[Penrose.color(tile)], :fill)
         end
-        origin()
+        
         Luxor.translate(pos)
         scale(sc)
         setline(2)
@@ -174,10 +162,10 @@ sc = 50
     tiling = pentagon
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
     end
-    origin()
+    
     setline(1)
     draw(first_tile, sc, "black", :stroke)
 end width height "pentagon.png"
@@ -194,10 +182,10 @@ sc = 50
     tiling = trapezoid
 
     for tile in tiling
-        origin()
+        
         draw(tile, sc, colors[Penrose.color(tile)], :fill)
     end
-    origin()
+    
     setline(1)
     draw(first_tile, sc, "black", :stroke)
 end width height "trapezoid.png"
