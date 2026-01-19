@@ -29,18 +29,17 @@ function SubstitutionTilings.id(::Type{TM})
 end
 
 function SubstitutionTilings.is_interior(tiling :: Dict, t :: TM)
-    return haskey(t.a, tiling) && haskey(t.a-1, tiling) && haskey(t.a+1, tiling)
+    return haskey(tiling, t.a) && haskey(tiling, t.a-1) && haskey(tiling, t.a+1)
 end
 
 function SubstitutionTilings.collar_in(tiling :: Dict, t :: TM)
     collar_shape = t*[TM(x) for x in [-2,0,2]]
     collar = []
-    tiling_dict = tiling
     for s in collar_shape
-        if !haskey(tiling_dict, s)
+        if !haskey(tiling, s)
             throw(UnrecognizedCollar)
         end
-        push!(collar, (s => tiling_dict[s]))
+        push!(collar, (s => tiling[s]))
     end
     return Dict(collar)
 end
@@ -50,4 +49,6 @@ thue_morse = SubSystem(Dict(A => [(TM(-1) => A), (TM(1) => B)], B => [(TM(-1) =>
 substitute(thue_morse, [(TM(0) => A)], 4)
 
 (collars, S) = total_collaring(thue_morse, Dict([(TM(-2) => A), (TM(0) => A), (TM(2) => B)]))
-length(collars)
+
+@time frequency(thue_morse, collars[1], Dict([(TM(0) => A), (TM(2) => B), (TM(-2) => A)]), 5)
+

@@ -379,9 +379,6 @@ function frequency(S :: SubSystem{G, D, L}, initial_collar, patch, depth) where 
         for tile in domain
             translated_patch_c = tile[1] * patch_c
             is_subset = true
-            println(translated_patch_c)
-            println(domain)
-            println("Checking subset")
             for (g, (kind, detect)) in translated_patch_c
                 if kind == :interior
                     if (g => detect) ∉ forced_uncollared_domain

@@ -15,7 +15,7 @@ sc = 30
 @draw begin
     colors = ["#DD93FC", "#E7977A",]
 
-    tiling = substitute(pinwheel(), [selfsimilar], 4)
+    tiling = substitute(pinwheel(), [selfsimilar], 5)
     setline(1)
 
     for tile in tiling
@@ -30,7 +30,6 @@ sc = 30
 end w h #"pinwheel-tiling"
 
 width = 600
-
 height = 200
 sc = 40
 @pdf begin
