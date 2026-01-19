@@ -2,7 +2,7 @@
 
 <img src="penrose.png" width="800" alt="splash image"/>
 
-[![][docs-development-img]][docs-development-url]
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://danrocag.github.io/SubstitutionTilings.jl/dev/)
 
 **SubstitutionTilings.jl** is a Julia package designed for the exploration, generation, and analysis of substitution tilings. It provides tools for generating large patches of tilings through substitution rules, visualizing them, and computing statistical properties such as patch frequencies.
 The package currently includes implementations for several well-known substitution systems:
