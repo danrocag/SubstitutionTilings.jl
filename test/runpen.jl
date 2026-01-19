@@ -1,18 +1,14 @@
 using SubstitutionTilings
 using SubstitutionTilings.Penrose
 import SubstitutionTilings.Penrose: ψ, ϕ, ζ
-using Plots
 using Luxor
 import Luxor: translate
-using Bessels
 
 const L = Penrose.Qζ
 
-Penrose.embed_nf(ζ)
-
-width = 800
-height = 400
-sc = 10
+width = 1200
+height = 600
+sc = 15
 @png begin
     colors = ["#DD93FC", "#E7977A", "#9B70AF", "#A0644F",]
     first_tile = hkite()
@@ -28,7 +24,7 @@ sc = 10
         draw(tile, sc, "#999999", :stroke)
         setopacity(1)
     end
-end width height
+end width height "penrose"
 
 
 
@@ -190,6 +186,7 @@ sc = 50
     draw(first_tile, sc, "black", :stroke)
 end width height "trapezoid.png"
 
+using Plots
 # Comparison of Array and Dict operations
 @assert substitute(penrose(), Dict([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)) == Dict(substitute(penrose(), ([hkite(0,0,L(0))]), 20, Penrose.in_bounds, (w=50, h=50)))
 
